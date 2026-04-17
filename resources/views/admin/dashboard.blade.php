@@ -3,9 +3,10 @@
 @section('title', 'Dashboard')
 
 @section('content')
-    <h1 class="text-2xl font-bold text-slate-900">Admin Dashboard</h1>
-    <p class="mt-1 text-slate-600">Platform overview and pending validations.</p>
+    <h1 class="text-2xl font-bold text-white">Admin Dashboard</h1>
+    <p class="mt-1 text-slate-400">Platform overview and pending validations.</p>
 
+    {{-- Stats Cards --}}
     <div class="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <x-stats-card label="Total events" :value="$stats['events'] ?? '0'">
             <x-slot name="icon"><span class="text-lg">📅</span></x-slot>
@@ -21,28 +22,30 @@
         </x-stats-card>
     </div>
 
+    {{-- Charts --}}
     <div class="mt-10 grid gap-8 lg:grid-cols-2">
-        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 class="text-lg font-bold text-slate-900">Events per month</h2>
+        <div class="rounded-2xl border border-white/10 bg-[#1a1a2e] p-6 shadow-sm">
+            <h2 class="text-lg font-bold text-white">Events per month</h2>
             <div class="mt-4 h-64">
                 <canvas id="adminBarChart" aria-label="Bar chart events per month"></canvas>
             </div>
         </div>
-        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 class="text-lg font-bold text-slate-900">Events by category</h2>
+        <div class="rounded-2xl border border-white/10 bg-[#1a1a2e] p-6 shadow-sm">
+            <h2 class="text-lg font-bold text-white">Events by category</h2>
             <div class="mx-auto mt-4 h-64 max-w-sm">
                 <canvas id="adminPieChart" aria-label="Pie chart by category"></canvas>
             </div>
         </div>
     </div>
 
-    <div class="mt-10 rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div class="border-b border-slate-100 px-6 py-4">
-            <h2 class="text-lg font-bold text-slate-900">Pending events (requires action)</h2>
+    {{-- Pending Events --}}
+    <div class="mt-10 rounded-2xl border border-white/10 bg-[#1a1a2e] shadow-sm">
+        <div class="border-b border-white/10 px-6 py-4">
+            <h2 class="text-lg font-bold text-white">⏳ Pending events (requires action)</h2>
         </div>
-        <div class="-mx-4 overflow-x-auto sm:mx-0">
+        <div class="overflow-x-auto">
             <table class="min-w-full text-left text-sm">
-                <thead class="bg-slate-50 text-xs font-semibold uppercase text-slate-500">
+                <thead class="bg-white/5 text-xs font-semibold uppercase text-slate-400">
                     <tr>
                         <th class="px-6 py-3">Event</th>
                         <th class="px-6 py-3">Organizer</th>
@@ -50,25 +53,33 @@
                         <th class="px-6 py-3 text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-white/5">
                     @forelse($pendingEvents ?? [] as $e)
-                        @php $row = is_object($e) ? $e : (object) $e; @endphp
-                        <tr>
-                            <td class="px-6 py-3 font-medium text-slate-900">{{ $row->title }}</td>
-                            <td class="px-6 py-3 text-slate-600">{{ $row->organizer_name ?? '—' }}</td>
-                            <td class="px-6 py-3 text-slate-600">{{ isset($row->created_at) ? \Carbon\Carbon::parse($row->created_at)->format('M d, Y') : '—' }}</td>
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="px-6 py-3 font-medium text-white">{{ $e->title }}</td>
+                            <td class="px-6 py-3 text-slate-400">{{ optional($e->organiser)->name ?? '—' }}</td>
+                            <td class="px-6 py-3 text-slate-400">
+                                {{ $e->created_at ? $e->created_at->format('M d, Y') : '—' }}
+                            </td>
                             <td class="px-6 py-3 text-right whitespace-nowrap">
-                                <form method="POST" action="{{ route('admin.events.approve', $row->id ?? 1) }}" class="inline">
+                                <form method="POST" action="{{ route('admin.events.approve', $e->id) }}" class="inline">
                                     @csrf
-                                    <button type="submit" class="font-semibold text-emerald-600 hover:text-emerald-700">Approve ✓</button>
+                                    <button type="submit"
+                                        class="rounded-lg bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 transition-all">
+                                        Approve ✓
+                                    </button>
                                 </form>
-                                <span class="mx-2 text-slate-300">|</span>
-                                <a href="{{ route('admin.events.show', $row->id ?? 1) }}" class="font-semibold text-slate-600 hover:text-slate-900">Review</a>
+                                <a href="{{ route('admin.events.show', $e->id) }}"
+                                    class="ml-2 rounded-lg bg-[#29ABE2]/20 px-3 py-1 text-xs font-semibold text-[#29ABE2] border border-[#29ABE2]/30 hover:bg-[#29ABE2]/30 transition-all">
+                                    Review
+                                </a>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-6 py-8 text-center text-slate-500">No pending events.</td>
+                            <td colspan="4" class="px-6 py-8 text-center text-slate-500">
+                                ✅ No pending events.
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -76,30 +87,34 @@
         </div>
     </div>
 
-    <div class="mt-10 rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div class="border-b border-slate-100 px-6 py-4">
-            <h2 class="text-lg font-bold text-slate-900">Recent registrations</h2>
+    {{-- Recent Registrations --}}
+    <div class="mt-8 rounded-2xl border border-white/10 bg-[#1a1a2e] shadow-sm">
+        <div class="border-b border-white/10 px-6 py-4">
+            <h2 class="text-lg font-bold text-white">Recent registrations</h2>
         </div>
-        <div class="-mx-4 overflow-x-auto sm:mx-0">
+        <div class="overflow-x-auto">
             <table class="min-w-full text-left text-sm">
-                <thead class="bg-slate-50 text-xs font-semibold uppercase text-slate-500">
+                <thead class="bg-white/5 text-xs font-semibold uppercase text-slate-400">
                     <tr>
                         <th class="px-6 py-3">User</th>
                         <th class="px-6 py-3">Event</th>
                         <th class="px-6 py-3">Date</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-white/5">
                     @forelse($recentRegistrations ?? [] as $r)
-                        @php $row = is_object($r) ? $r : (object) $r; @endphp
-                        <tr>
-                            <td class="px-6 py-3">{{ $row->user ?? '—' }}</td>
-                            <td class="px-6 py-3">{{ $row->event ?? '—' }}</td>
-                            <td class="px-6 py-3 text-slate-600">{{ $row->date ?? '—' }}</td>
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="px-6 py-3 text-white">{{ optional($r->user)->name ?? '—' }}</td>
+                            <td class="px-6 py-3 text-slate-400">{{ optional($r->event)->title ?? '—' }}</td>
+                            <td class="px-6 py-3 text-slate-400">
+                                {{ $r->registered_at ? $r->registered_at->format('M d, Y') : '—' }}
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" class="px-6 py-8 text-center text-slate-500">No recent registrations.</td>
+                            <td colspan="3" class="px-6 py-8 text-center text-slate-500">
+                                No recent registrations.
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -113,16 +128,19 @@
 document.addEventListener('DOMContentLoaded', function () {
     if (typeof Chart === 'undefined') return;
 
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
+
     const barCtx = document.getElementById('adminBarChart');
     if (barCtx) {
         new Chart(barCtx, {
             type: 'bar',
             data: {
-                labels: @json($chartMonths ?? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']),
+                labels: @json($chartMonths),
                 datasets: [{
                     label: 'Events',
-                    data: @json($chartMonthValues ?? [4, 7, 5, 12, 9, 14]),
-                    backgroundColor: 'rgba(108, 63, 197, 0.75)',
+                    data: @json($chartMonthValues),
+                    backgroundColor: 'rgba(41, 171, 226, 0.75)',
                     borderRadius: 8,
                 }],
             },
@@ -131,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.06)' } },
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
                     x: { grid: { display: false } },
                 },
             },
@@ -141,12 +159,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const pieCtx = document.getElementById('adminPieChart');
     if (pieCtx) {
         new Chart(pieCtx, {
-            type: 'pie',
+            type: 'doughnut',
             data: {
-                labels: @json($pieLabels ?? ['Professional', 'Cultural', 'Corporate']),
+                labels: @json($pieLabels),
                 datasets: [{
-                    data: @json($pieValues ?? [45, 30, 25]),
-                    backgroundColor: ['#6C3FC5', '#8B5CF6', '#3B82F6'],
+                    data: @json($pieValues),
+                    backgroundColor: ['#29ABE2', '#0A7FA8', '#065F80'],
                     borderWidth: 0,
                 }],
             },

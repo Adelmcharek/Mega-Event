@@ -18,7 +18,7 @@ class AuthenticatedSessionController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
-            'email' => ['required', 'string', 'email'],
+            'email'    => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
         ]);
 
@@ -30,16 +30,17 @@ class AuthenticatedSessionController extends Controller
 
         $user = $request->user();
 
-        if (! $user->is_active) {
+        // ✅ Fixed: use 'status' column instead of 'is_active'
+        if ($user->status === 'inactive') {
             Auth::logout();
-
-            return back()->withErrors(['email' => __('Your account is deactivated.')]);
+            return back()->withErrors(['email' => 'Your account is deactivated.']);
         }
 
+        // ✅ Fixed: 'organisateur' instead of 'organizer'
         return redirect()->intended(match ($user->role) {
-            'admin' => route('admin.dashboard'),
-            'organizer' => route('organizer.dashboard'),
-            default => route('participant.dashboard'),
+            'admin'        => route('admin.dashboard'),
+            'organisateur' => route('organizer.dashboard'),
+            default        => route('participant.dashboard'),
         });
     }
 

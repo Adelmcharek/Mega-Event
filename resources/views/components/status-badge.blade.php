@@ -3,23 +3,23 @@
 @php
     $key = strtoupper((string) $status);
     $map = [
-        'DRAFT' => 'bg-slate-600 text-white',
-        'PENDING' => 'bg-amber-500 text-slate-900',
-        'PUBLISHED' => 'bg-emerald-600 text-white',
-        'REJECTED' => 'bg-red-600 text-white',
-        'OPEN' => 'bg-emerald-500/20 text-emerald-700 ring-1 ring-emerald-500/40',
-        'FULL' => 'bg-red-500/20 text-red-700 ring-1 ring-red-500/40',
-        'COMING SOON' => 'bg-blue-500/20 text-blue-700 ring-1 ring-blue-500/40',
-        'CONFIRMED' => 'bg-emerald-600 text-white',
-        'ADMIN' => 'bg-red-600 text-white',
-        'ORGANISATEUR' => 'bg-brand-500 text-white',
-        'ORGANIZER' => 'bg-brand-500 text-white',
-        'PARTICIPANT' => 'bg-blue-600 text-white',
-        'ACTIVE' => 'bg-emerald-600 text-white',
-        'INACTIVE' => 'bg-slate-500 text-white',
+        'DRAFT' => 'bg-gray-500/20 text-gray-400 border border-gray-500/30',
+        'PENDING' => 'bg-[#29ABE2]/20 text-[#29ABE2] border border-[#29ABE2]/30',
+        'PUBLISHED' => 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
+        'REJECTED' => 'bg-red-500/20 text-red-400 border border-red-500/30',
+        'OPEN' => 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
+        'FULL' => 'bg-rose-500/20 text-rose-400 border border-rose-500/30',
+        'COMING SOON' => 'bg-[#0A7FA8]/20 text-[#0A7FA8] border border-[#0A7FA8]/30',
+        'CONFIRMED' => 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
+        'ADMIN' => 'bg-red-500/20 text-red-400 border border-red-500/30',
+        'ORGANISATEUR' => 'bg-[#29ABE2]/20 text-[#29ABE2] border border-[#29ABE2]/30',
+        'ORGANIZER' => 'bg-[#29ABE2]/20 text-[#29ABE2] border border-[#29ABE2]/30',
+        'PARTICIPANT' => 'bg-[#0A7FA8]/20 text-[#0A7FA8] border border-[#0A7FA8]/30',
+        'ACTIVE' => 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
+        'INACTIVE' => 'bg-gray-500/20 text-gray-400 border border-gray-500/30',
     ];
-    $class = $map[$key] ?? 'bg-slate-500/20 text-slate-700 ring-1 ring-slate-300';
+    $class = $map[$key] ?? 'bg-gray-500/20 text-gray-400 border border-gray-500/30';
 @endphp
-<span {{ $attributes->merge(['class' => 'inline-flex items-center rounded-lg px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide '.$class]) }}>
+<span {{ $attributes->merge(['class' => 'inline-flex items-center rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wide '.$class]) }}>
     {{ $status }}
 </span>

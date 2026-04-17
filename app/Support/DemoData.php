@@ -81,28 +81,69 @@ class DemoData
     }
 
     public static function filterEvents(\Illuminate\Http\Request $request): Collection
-    {
-        $q = self::events();
-        if ($request->filled('search')) {
-            $s = strtolower($request->string('search'));
-            $q = $q->filter(fn ($e) => str_contains(strtolower($e->title), $s));
-        }
-        if ($request->filled('location')) {
-            $s = strtolower($request->string('location'));
-            $q = $q->filter(fn ($e) => str_contains(strtolower($e->location), $s));
-        }
-        if ($request->filled('date')) {
-            $d = $request->date('date');
-            $q = $q->filter(fn ($e) => \Carbon\Carbon::parse($e->date)->startOfDay()->gte($d));
-        }
-        $cat = $request->string('category');
-        if ($cat->isNotEmpty() && $cat->toString() !== 'all') {
-            $q = $q->filter(fn ($e) => $e->category === $cat->toString());
-        }
+{
+    $q = self::events();
 
-        return $q->values();
+    // Keyword search (title + description)
+    if ($request->filled('search')) {
+        $s = strtolower($request->string('search'));
+        $q = $q->filter(fn ($e) =>
+            str_contains(strtolower($e->title), $s) ||
+            str_contains(strtolower($e->description ?? ''), $s)
+        );
     }
 
+    // Location filter
+    if ($request->filled('location')) {
+        $s = strtolower($request->string('location'));
+        $q = $q->filter(fn ($e) => str_contains(strtolower($e->location), $s));
+    }
+
+    // Date from
+    if ($request->filled('date_from')) {
+        $d = \Carbon\Carbon::parse($request->string('date_from'))->startOfDay();
+        $q = $q->filter(fn ($e) => \Carbon\Carbon::parse($e->date)->startOfDay()->gte($d));
+    }
+
+    // Date to
+    if ($request->filled('date_to')) {
+        $d = \Carbon\Carbon::parse($request->string('date_to'))->endOfDay();
+        $q = $q->filter(fn ($e) => \Carbon\Carbon::parse($e->date)->endOfDay()->lte($d));
+    }
+
+    // Legacy date param (keep for backward compat)
+    if ($request->filled('date') && !$request->filled('date_from')) {
+        $d = $request->date('date');
+        $q = $q->filter(fn ($e) => \Carbon\Carbon::parse($e->date)->startOfDay()->gte($d));
+    }
+
+    // Category filter
+    $cat = $request->string('category');
+    if ($cat->isNotEmpty() && $cat->toString() !== 'all') {
+        $q = $q->filter(fn ($e) => strtolower($e->category) === strtolower($cat->toString()));
+    }
+
+    // Mode filter (online = Remote location, onsite = physical location)
+    $mode = $request->string('mode');
+    if ($mode->isNotEmpty() && $mode->toString() !== 'all') {
+        if ($mode->toString() === 'online') {
+            $q = $q->filter(fn ($e) => strtolower($e->location) === 'remote');
+        } elseif ($mode->toString() === 'onsite') {
+            $q = $q->filter(fn ($e) => strtolower($e->location) !== 'remote');
+        }
+    }
+
+    // Sort
+    $sort = $request->string('sort', 'date_asc')->toString();
+    $q = match($sort) {
+        'date_desc'     => $q->sortByDesc(fn ($e) => \Carbon\Carbon::parse($e->date)->timestamp),
+        'capacity_asc'  => $q->sortBy(fn ($e) => $e->capacity - ($e->registered ?? 0)),
+        'title_asc'     => $q->sortBy(fn ($e) => $e->title),
+        default         => $q->sortBy(fn ($e) => \Carbon\Carbon::parse($e->date)->timestamp),
+    };
+
+    return $q->values();
+}
     public static function findEvent(int $id): ?object
     {
         return self::events()->firstWhere('id', $id);

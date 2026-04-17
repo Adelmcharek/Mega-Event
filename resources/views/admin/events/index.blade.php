@@ -5,82 +5,98 @@
 @section('content')
     <div class="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-            <h1 class="text-2xl font-bold text-slate-900">All Events</h1>
-            <p class="text-slate-600">Filter, approve, and manage platform events.</p>
+            <h1 class="text-2xl font-bold text-white">All Events</h1>
+            <p class="text-slate-400">Filter, approve, and manage platform events.</p>
         </div>
         <form method="GET" class="flex flex-wrap gap-2">
-            <select name="status" class="rounded-xl border border-slate-200 px-3 py-2 text-sm">
+            <select name="status"
+                    class="rounded-xl border border-white/10 bg-[#1a1a2e] px-3 py-2 text-sm text-white">
                 <option value="">All statuses</option>
-                @foreach (['DRAFT', 'PENDING', 'PUBLISHED', 'REJECTED'] as $s)
-                    <option value="{{ $s }}" @selected(request('status') === $s)>{{ $s }}</option>
+                @foreach (['draft', 'pending', 'published', 'rejected'] as $s)
+                    <option value="{{ $s }}" @selected(request('status') === $s)>{{ ucfirst($s) }}</option>
                 @endforeach
             </select>
-            <input type="text" name="organizer" value="{{ request('organizer') }}" placeholder="Organizer" class="rounded-xl border border-slate-200 px-3 py-2 text-sm">
-            <input type="date" name="from" value="{{ request('from') }}" class="rounded-xl border border-slate-200 px-3 py-2 text-sm">
-            <input type="date" name="to" value="{{ request('to') }}" class="rounded-xl border border-slate-200 px-3 py-2 text-sm">
-            <button type="submit" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white">Filter</button>
+            <input type="text" name="organizer" value="{{ request('organizer') }}" placeholder="Organizer"
+                   class="rounded-xl border border-white/10 bg-[#1a1a2e] px-3 py-2 text-sm text-white placeholder-slate-500">
+            <input type="date" name="from" value="{{ request('from') }}"
+                   class="rounded-xl border border-white/10 bg-[#1a1a2e] px-3 py-2 text-sm text-white">
+            <input type="date" name="to" value="{{ request('to') }}"
+                   class="rounded-xl border border-white/10 bg-[#1a1a2e] px-3 py-2 text-sm text-white">
+            <button type="submit"
+                    class="rounded-xl px-4 py-2 text-sm font-semibold text-white"
+                    style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">
+                Filter
+            </button>
         </form>
     </div>
 
-    <div
-        class="rounded-2xl border border-slate-200 bg-white shadow-sm"
-        x-data="{ selected: [] }"
-    >
-        <div class="flex flex-col gap-3 border-b border-slate-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <span class="text-sm text-slate-600" x-show="selected.length" x-text="selected.length + ' selected'" x-cloak></span>
-            <div class="flex flex-wrap gap-2">
-                <button type="button" class="rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50" @click="alert('Bulk approve — connect backend')">Approve selected</button>
-                <button type="button" class="rounded-xl border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50" @click="alert('Bulk delete — connect backend')">Delete selected</button>
-            </div>
+    <div class="rounded-2xl border border-white/10 bg-[#1a1a2e] shadow-sm overflow-hidden"
+         x-data="{ selected: [] }">
+        <div class="flex flex-col gap-3 border-b border-white/10 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <span class="text-sm text-slate-400" x-show="selected.length" x-text="selected.length + ' selected'" x-cloak></span>
         </div>
-        <div class="-mx-4 overflow-x-auto sm:mx-0">
+        <div class="overflow-x-auto">
             <table class="min-w-full text-left text-sm">
-                <thead class="bg-slate-50 text-xs font-semibold uppercase text-slate-500">
+                <thead class="bg-white/5 text-xs font-semibold uppercase text-slate-400">
                     <tr>
                         <th class="px-4 py-3"><span class="sr-only">Select</span></th>
                         <th class="px-4 py-3">Title</th>
                         <th class="px-4 py-3">Organizer</th>
                         <th class="px-4 py-3">Date</th>
-                        <th class="px-4 py-3">Participants</th>
+                        <th class="px-4 py-3">Registrations</th>
                         <th class="px-4 py-3">Status</th>
                         <th class="px-4 py-3 text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
-                    @foreach ($events ?? [] as $event)
-                        @php $e = is_object($event) ? $event : (object) $event; @endphp
-                        <tr>
+                <tbody class="divide-y divide-white/5">
+                    @forelse ($events ?? [] as $event)
+                        <tr class="hover:bg-white/5 transition-colors">
                             <td class="px-4 py-3">
-                                <input type="checkbox" :value="{{ $e->id }}" x-model.number="selected" class="rounded border-slate-300 text-brand-500">
+                                <input type="checkbox" :value="{{ $event->id }}" x-model.number="selected"
+                                       class="rounded border-white/20">
                             </td>
-                            <td class="px-4 py-3 font-medium text-slate-900">{{ $e->title }}</td>
-                            <td class="px-4 py-3 text-slate-600">{{ $e->organizer_name ?? '—' }}</td>
-                            <td class="px-4 py-3 text-slate-600">{{ \Carbon\Carbon::parse($e->date)->format('M d, Y') }}</td>
-                            <td class="px-4 py-3 text-slate-600">{{ $e->registered ?? 0 }}</td>
-                            <td class="px-4 py-3"><x-status-badge :status="$e->status ?? 'PENDING'" /></td>
+                            <td class="px-4 py-3 font-medium text-white">{{ $event->title }}</td>
+                            <td class="px-4 py-3 text-slate-400">{{ optional($event->organiser)->name ?? '—' }}</td>
+                            <td class="px-4 py-3 text-slate-400">{{ $event->date->format('M d, Y') }}</td>
+                            <td class="px-4 py-3 text-slate-400">{{ $event->registrations_count ?? 0 }}</td>
+                            <td class="px-4 py-3"><x-status-badge :status="$event->status" /></td>
                             <td class="px-4 py-3 text-right whitespace-nowrap text-xs font-semibold">
-                                <form method="POST" action="{{ route('admin.events.approve', $e->id) }}" class="inline">@csrf<button type="submit" class="text-emerald-600">Approve</button></form>
-                                <span class="mx-1 text-slate-300">|</span>
-                                <a href="{{ route('admin.events.show', $e->id) }}" class="text-brand-500">View</a>
-                                <span class="mx-1 text-slate-300">|</span>
-                                <button type="button" class="text-red-600" @click="$dispatch('open-modal', 'del-{{ $e->id }}')">Delete</button>
+                                @if ($event->status === 'pending')
+                                    <form method="POST" action="{{ route('admin.events.approve', $event->id) }}" class="inline">
+                                        @csrf
+                                        <button type="submit" class="text-emerald-400 hover:text-emerald-300">Approve</button>
+                                    </form>
+                                    <span class="mx-1 text-white/20">|</span>
+                                @endif
+                                <a href="{{ route('admin.events.show', $event->id) }}" class="text-[#29ABE2] hover:text-[#4CBDE8]">View</a>
+                                <span class="mx-1 text-white/20">|</span>
+                                <button type="button" class="text-red-400 hover:text-red-300"
+                                        @click="$dispatch('open-modal', 'del-{{ $event->id }}')">Delete</button>
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-4 py-16 text-center text-slate-500">
+                                No events found.
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
     </div>
 
     @foreach ($events ?? [] as $event)
-        @php $e = is_object($event) ? $event : (object) $event; @endphp
-        <x-confirm-modal id="del-{{ $e->id }}" title="Delete event?">
-            Permanently delete {{ $e->title }}?
+        <x-confirm-modal id="del-{{ $event->id }}" title="Delete event?">
+            Permanently delete <strong class="text-white">{{ $event->title }}</strong>?
             <x-slot name="confirm">
-                <form method="POST" action="{{ route('admin.events.destroy', $e->id) }}">
+                <form method="POST" action="{{ route('admin.events.destroy', $event->id) }}">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">Delete</button>
+                    <button type="submit"
+                            class="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">
+                        Delete
+                    </button>
                 </form>
             </x-slot>
         </x-confirm-modal>

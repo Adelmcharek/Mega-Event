@@ -3,84 +3,226 @@
 @section('title', 'Register')
 
 @section('content')
-    <div class="rounded-2xl border border-white/10 bg-white/95 p-8 shadow-2xl backdrop-blur-sm">
-        <h1 class="text-center text-2xl font-bold text-slate-900">Create account</h1>
-        <p class="mt-1 text-center text-sm text-slate-600">Join MEGA EVENT as a participant or organizer</p>
+    <div class="rounded-3xl border border-white/10 p-8 shadow-2xl backdrop-blur-xl"
+         style="background-color: rgba(26, 26, 46, 0.95);">
 
-        <form method="POST" action="{{ route('register') }}" class="mt-8 space-y-4">
+        {{-- Logo --}}
+        <div class="mb-6 flex flex-col items-center gap-2">
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl font-bold text-white text-lg"
+                 style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">
+                ME
+            </div>
+            <h1 class="text-center text-2xl font-bold text-white">Create account</h1>
+            <p class="text-center text-sm text-slate-400">Join MEGA EVENT as a participant or organizer</p>
+        </div>
+
+        <form method="POST" action="{{ route('register') }}" class="space-y-4">
             @csrf
+
+            {{-- Full Name --}}
             <div>
-                <label for="name" class="block text-sm font-medium text-slate-700">Full name</label>
-                <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    value="{{ old('name') }}"
-                    required
-                    class="mt-1 w-full rounded-xl border px-3 py-2.5 text-slate-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30 {{ $errors->has('name') ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200' }}"
-                >
+                <label for="name" class="block text-sm font-medium text-slate-300">Full name</label>
+                <input id="name" name="name" type="text"
+                       value="{{ old('name') }}" required
+                       placeholder="Your Name Here"
+                       class="mt-1 w-full rounded-xl border px-3 py-2.5 text-white placeholder-slate-500
+                              {{ $errors->has('name') ? 'border-red-500 ring-2 ring-red-500/20' : 'border-white/10' }}"
+                       style="background-color: #111111;">
                 @error('name')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
                 @enderror
             </div>
+
+            {{-- Email --}}
             <div>
-                <label for="email" class="block text-sm font-medium text-slate-700">Email</label>
-                <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value="{{ old('email') }}"
-                    required
-                    class="mt-1 w-full rounded-xl border px-3 py-2.5 text-slate-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30 {{ $errors->has('email') ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200' }}"
-                >
+                <label for="email" class="block text-sm font-medium text-slate-300">Email</label>
+                <input id="email" name="email" type="email"
+                       value="{{ old('email') }}" required
+                       placeholder="yourname@example.com"
+                       class="mt-1 w-full rounded-xl border px-3 py-2.5 text-white placeholder-slate-500
+                              {{ $errors->has('email') ? 'border-red-500 ring-2 ring-red-500/20' : 'border-white/10' }}"
+                       style="background-color: #111111;">
                 @error('email')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
                 @enderror
             </div>
-            <div>
-                <label for="password" class="block text-sm font-medium text-slate-700">Password</label>
-                <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    required
-                    class="mt-1 w-full rounded-xl border px-3 py-2.5 text-slate-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30 {{ $errors->has('password') ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200' }}"
-                >
-                @error('password')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-            <div>
-                <label for="password_confirmation" class="block text-sm font-medium text-slate-700">Confirm password</label>
-                <input
-                    id="password_confirmation"
-                    name="password_confirmation"
-                    type="password"
-                    required
-                    class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-slate-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
-                >
-            </div>
-            <div>
-                <span class="block text-sm font-medium text-slate-700">Role</span>
-                <div class="mt-2 flex flex-col gap-2 sm:flex-row">
-                    <label class="flex flex-1 cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 has-[:checked]:border-brand-500 has-[:checked]:bg-brand-500/5">
-                        <input type="radio" name="role" value="participant" class="text-brand-500 focus:ring-brand-500" {{ old('role', 'participant') === 'participant' ? 'checked' : '' }}>
-                        <span class="text-sm font-medium text-slate-800">Participant</span>
+
+            {{-- Password with strength indicator --}}
+            <div x-data="{
+                show: false,
+                showConfirm: false,
+                password: '',
+                get strength() {
+                    let score = 0;
+                    if (this.password.length >= 8) score++;
+                    if (/[A-Z]/.test(this.password)) score++;
+                    if (/[0-9]/.test(this.password)) score++;
+                    if (/[^A-Za-z0-9]/.test(this.password)) score++;
+                    return score;
+                },
+                get label() {
+                    return ['', 'Weak', 'Fair', 'Good', 'Strong'][this.strength];
+                },
+                get color() {
+                    return ['', 'red', 'amber', 'blue', 'emerald'][this.strength];
+                }
+            }">
+                {{-- Password field --}}
+                <div>
+                    <label for="password" class="block text-sm font-medium text-slate-300">Password</label>
+                    <div class="relative mt-1">
+                        <input id="password" name="password"
+                               :type="show ? 'text' : 'password'"
+                               x-model="password"
+                               required placeholder="••••••••"
+                               class="w-full rounded-xl border px-3 py-2.5 text-white placeholder-slate-500 pr-10
+                                      {{ $errors->has('password') ? 'border-red-500 ring-2 ring-red-500/20' : 'border-white/10' }}"
+                               style="background-color: #111111;">
+                        <button type="button" @click="show = !show"
+                                class="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-white transition-colors">
+                            <svg x-show="!show" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            <svg x-show="show" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" x-cloak>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 4.411m0 0L21 21"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    {{-- Strength bars --}}
+                    <div class="mt-2 flex gap-1" x-show="password.length > 0">
+                        <template x-for="i in 4">
+                            <div class="h-1.5 flex-1 rounded-full transition-all duration-300"
+                                 :style="i <= strength
+                                     ? `background-color: ${color === 'red' ? '#ef4444' : color === 'amber' ? '#f59e0b' : color === 'blue' ? '#29ABE2' : '#10b981'}`
+                                     : 'background-color: rgba(255,255,255,0.1)'">
+                            </div>
+                        </template>
+                    </div>
+
+                    {{-- Strength label --}}
+                    <div class="mt-1" x-show="password.length > 0">
+                        <p class="text-xs"
+                           :class="{
+                               'text-red-400':     color === 'red',
+                               'text-amber-400':   color === 'amber',
+                               'text-[#29ABE2]':   color === 'blue',
+                               'text-emerald-400': color === 'emerald'
+                           }"
+                           x-text="'Strength: ' + label">
+                        </p>
+                    </div>
+
+                    {{-- Checklist --}}
+                    <ul class="mt-2 space-y-1" x-show="password.length > 0">
+                        <li class="flex items-center gap-2 text-xs"
+                            :class="password.length >= 8 ? 'text-emerald-400' : 'text-slate-500'">
+                            <span x-text="password.length >= 8 ? '✓' : '✗'"></span>
+                            At least 8 characters
+                        </li>
+                        <li class="flex items-center gap-2 text-xs"
+                            :class="/[A-Z]/.test(password) ? 'text-emerald-400' : 'text-slate-500'">
+                            <span x-text="/[A-Z]/.test(password) ? '✓' : '✗'"></span>
+                            One uppercase letter
+                        </li>
+                        <li class="flex items-center gap-2 text-xs"
+                            :class="/[0-9]/.test(password) ? 'text-emerald-400' : 'text-slate-500'">
+                            <span x-text="/[0-9]/.test(password) ? '✓' : '✗'"></span>
+                            One number
+                        </li>
+                        <li class="flex items-center gap-2 text-xs"
+                            :class="/[^A-Za-z0-9]/.test(password) ? 'text-emerald-400' : 'text-slate-500'">
+                            <span x-text="/[^A-Za-z0-9]/.test(password) ? '✓' : '✗'"></span>
+                            One special character (!@#$...)
+                        </li>
+                    </ul>
+
+                    @error('password')
+                        <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Confirm Password --}}
+                <div class="mt-4">
+                    <label for="password_confirmation" class="block text-sm font-medium text-slate-300">
+                        Confirm password
                     </label>
-                    <label class="flex flex-1 cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 has-[:checked]:border-brand-500 has-[:checked]:bg-brand-500/5">
-                        <input type="radio" name="role" value="organizer" class="text-brand-500 focus:ring-brand-500" {{ old('role') === 'organizer' ? 'checked' : '' }}>
-                        <span class="text-sm font-medium text-slate-800">Organisateur</span>
+                    <div class="relative mt-1">
+                        <input id="password_confirmation" name="password_confirmation"
+                               :type="showConfirm ? 'text' : 'password'"
+                               required placeholder="••••••••"
+                               class="w-full rounded-xl border border-white/10 px-3 py-2.5 text-white placeholder-slate-500 pr-10"
+                               style="background-color: #111111;">
+                        <button type="button" @click="showConfirm = !showConfirm"
+                                class="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-white transition-colors">
+                            <svg x-show="!showConfirm" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            <svg x-show="showConfirm" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" x-cloak>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 4.411m0 0L21 21"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+            </div>{{-- end x-data --}}
+
+            {{-- Role Selector --}}
+            <div x-data="{ role: '{{ old('role', 'participant') }}' }">
+                <span class="block text-sm font-medium text-slate-300">Role</span>
+                <div class="mt-3 grid grid-cols-2 gap-3">
+
+                    {{-- Participant --}}
+                    <label @click="role = 'participant'"
+                           :class="role === 'participant'
+                               ? 'border-[#29ABE2] shadow-lg shadow-[#29ABE2]/20'
+                               : 'border-white/10 hover:border-white/20'"
+                           class="cursor-pointer flex flex-col items-center justify-center gap-2 rounded-2xl border-2 p-5 transition-all duration-300 text-center"
+                           style="background-color: #111111;">
+                        <span class="text-3xl">👥</span>
+                        <p class="text-sm font-semibold text-white">Participant</p>
+                        <p class="text-xs text-slate-400">Join events</p>
+                        <input type="radio" name="role" value="participant" class="hidden"
+                               x-bind:checked="role === 'participant'">
                     </label>
+
+                    {{-- Organisateur --}}
+                    <label @click="role = 'organisateur'"
+                           :class="role === 'organisateur'
+                               ? 'border-[#29ABE2] shadow-lg shadow-[#29ABE2]/20'
+                               : 'border-white/10 hover:border-white/20'"
+                           class="cursor-pointer flex flex-col items-center justify-center gap-2 rounded-2xl border-2 p-5 transition-all duration-300 text-center"
+                           style="background-color: #111111;">
+                        <span class="text-3xl">📅</span>
+                        <p class="text-sm font-semibold text-white">Organisateur</p>
+                        <p class="text-xs text-slate-400">Create events</p>
+                        <input type="radio" name="role" value="organisateur" class="hidden"
+                               x-bind:checked="role === 'organisateur'">
+                    </label>
+
                 </div>
                 @error('role')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
                 @enderror
             </div>
-            <button type="submit" class="btn-gradient mt-2 w-full py-3 text-base">Create account</button>
+
+            {{-- Submit --}}
+            <button type="submit"
+                    class="mt-2 w-full rounded-xl py-3 text-base font-semibold text-white
+                           transition-all duration-300 ease-in-out
+                           hover:scale-[1.02] hover:shadow-lg hover:shadow-[#29ABE2]/25"
+                    style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">
+                Create account
+            </button>
         </form>
-        <p class="mt-6 text-center text-sm text-slate-600">
+
+        <p class="mt-6 text-center text-sm text-slate-400">
             Already registered?
-            <a href="{{ route('login') }}" class="font-semibold text-brand-500 hover:text-brand-600">Login</a>
+            <a href="{{ route('login') }}" class="font-semibold text-[#29ABE2] hover:text-[#4CBDE8]">
+                Login
+            </a>
         </p>
     </div>
 @endsection

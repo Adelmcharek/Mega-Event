@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     @include('partials.head')
-    <title>@hasSection('title')@yield('title') — @endifAdmin — {{ config('app.name', 'MEGA EVENT') }}</title>
+    <title>@hasSection('title')@yield('title') — @endif Admin — {{ config('app.name', 'MEGA EVENT') }}</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
     <style>[x-cloak]{display:none!important}</style>
 </head>
@@ -43,13 +43,17 @@
         </aside>
 
         <div class="flex flex-1 flex-col">
-            <header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white/90 px-4 backdrop-blur md:px-6">
-                <button type="button" class="rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden" @click="sidebarOpen = true">☰</button>
+            <header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-700/50 px-4 backdrop-blur md:px-6"
+                    style="background-color: var(--bg-secondary);">
+                <button type="button" class="rounded-lg p-2 text-gray-400 hover:bg-gray-800 lg:hidden" @click="sidebarOpen = true">☰</button>
                 <div class="flex flex-1 items-center justify-end gap-3">
                     <span class="rounded-full bg-red-600 px-3 py-1 text-xs font-bold uppercase text-white">Admin</span>
+                    <button onclick="toggleTheme()" class="theme-toggle-btn" title="Toggle theme" aria-label="Toggle theme">
+                        <span class="theme-toggle-icon">☀️</span>
+                    </button>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="rounded-xl border border-slate-200 px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Logout</button>
+                        <button type="submit" class="rounded-xl border border-gray-600 px-3 py-1.5 text-sm font-semibold text-gray-300 hover:bg-gray-700">Logout</button>
                     </form>
                 </div>
             </header>

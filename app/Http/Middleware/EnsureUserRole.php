@@ -8,15 +8,19 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EnsureUserRole
 {
-    /**
-     * @param  string  ...$roles
-     */
-    public function handle(Request $request, Closure $next, string ...$roles): Response
+    public function handle(Request $request, Closure $next, string $role): Response
     {
-        $user = $request->user();
+        if (! $request->user()) {
+            return redirect()->route('login');
+        }
 
-        if (! $user || ! in_array($user->role, $roles, true)) {
-            abort(403);
+        if ($request->user()->role !== $role) {
+            // Redirect to their correct dashboard
+            return redirect()->route(match($request->user()->role) {
+                'admin'        => 'admin.dashboard',
+                'organisateur' => 'organizer.dashboard',
+                default        => 'participant.dashboard',
+            });
         }
 
         return $next($request);

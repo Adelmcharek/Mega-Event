@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     @include('partials.head')
-    <title>@hasSection('title')@yield('title') — @endifOrganizer — {{ config('app.name', 'MEGA EVENT') }}</title>
+    <title>@hasSection('title')@yield('title') — @endif MEGA EVENT — {{ config('app.name', 'MEGA EVENT') }}</title>
     <style>[x-cloak]{display:none!important}</style>
 </head>
 <body class="min-h-screen bg-content font-sans text-slate-900 antialiased" x-data="{ sidebarOpen: false, sidebarCollapsed: false }">
@@ -21,7 +21,7 @@
         >
             <div class="flex h-16 items-center justify-between border-b border-white/10 px-4">
                 <a href="{{ route('organizer.dashboard') }}" class="flex items-center gap-2 font-extrabold text-white" :class="{ 'lg:justify-center lg:gap-0': sidebarCollapsed }">
-                    <span class="rounded-lg bg-gradient-to-br from-purple-600 to-blue-500 px-2 py-0.5 text-xs">ME</span>
+                    <div class="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-white text-sm shadow-[0_0_20px_rgba(41,171,226,0.4)]" style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">ME</div>
                     <span class="lg:hidden" x-show="!sidebarCollapsed || window.innerWidth < 1024">Organizer</span>
                     <span class="hidden font-semibold lg:inline" x-show="!sidebarCollapsed">Organizer</span>
                 </a>
@@ -73,18 +73,22 @@
         </aside>
 
         <div class="flex flex-1 flex-col lg:ml-0">
-            <header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white/90 px-4 backdrop-blur md:px-6">
-                <button type="button" class="rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden" @click="sidebarOpen = true" aria-label="Open menu">
+            <header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-700/50 px-4 backdrop-blur md:px-6"
+                    style="background-color: var(--bg-secondary);">
+                <button type="button" class="rounded-lg p-2 text-gray-400 hover:bg-gray-800 lg:hidden" @click="sidebarOpen = true" aria-label="Open menu">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                 </button>
                 <div class="flex flex-1 items-center justify-end gap-3">
                     <div class="flex items-center gap-2">
-                        <span class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-blue-500 text-sm font-bold text-white">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
-                        <span class="hidden text-sm font-semibold text-slate-800 sm:inline">{{ auth()->user()->name }}</span>
+                        <span class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#29ABE2] to-[#0A7FA8] text-sm font-bold text-white">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
+                        <span class="hidden text-sm font-semibold text-white sm:inline">{{ auth()->user()->name }}</span>
                     </div>
+                    <button onclick="toggleTheme()" class="theme-toggle-btn" title="Toggle theme" aria-label="Toggle theme">
+                        <span class="theme-toggle-icon">☀️</span>
+                    </button>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="rounded-xl border border-slate-200 px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Logout</button>
+                        <button type="submit" class="rounded-xl border border-gray-600 px-3 py-1.5 text-sm font-semibold text-gray-300 hover:bg-gray-700">Logout</button>
                     </form>
                 </div>
             </header>
@@ -102,5 +106,6 @@
         @click="sidebarOpen = false"
         x-cloak
     ></div>
+    @stack('scripts')
 </body>
 </html>
