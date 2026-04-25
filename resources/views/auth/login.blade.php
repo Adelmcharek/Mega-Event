@@ -12,8 +12,8 @@
                  style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">
                 ME
             </div>
-            <h1 class="text-center text-2xl font-bold text-white">Welcome back</h1>
-            <p class="text-center text-sm text-slate-400">Sign in to continue to MEGA EVENT</p>
+            <h1 class="text-center text-2xl font-bold text-white">{{ __('app.welcome_back') }}</h1>
+            <p class="text-center text-sm text-slate-400">{{ __('app.sign_in') }}</p>
         </div>
 
         <form method="POST" action="{{ route('login') }}" class="space-y-5">
@@ -21,7 +21,7 @@
 
             {{-- Email --}}
             <div>
-                <label for="email" class="block text-sm font-medium text-slate-300">Email</label>
+                <label for="email" class="block text-sm font-medium text-slate-300">{{ __('app.email') }}</label>
                 <div class="relative mt-1">
                     <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">✉️</span>
                     <input id="email" name="email" type="email"
@@ -39,7 +39,7 @@
 
             {{-- Password --}}
             <div>
-                <label for="password" class="block text-sm font-medium text-slate-300">Password</label>
+                <label for="password" class="block text-sm font-medium text-slate-300">{{ __('app.password') }}</label>
                 <div class="relative mt-1">
                     <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">🔒</span>
                     <input id="password" name="password" type="password"
@@ -60,20 +60,20 @@
                 <input id="remember" name="remember" type="checkbox" value="1"
                        class="h-4 w-4 rounded border-white/20 accent-[#29ABE2]"
                        {{ old('remember') ? 'checked' : '' }}>
-                <label for="remember" class="text-sm text-slate-400">Remember me</label>
+                <label for="remember" class="text-sm text-slate-400">{{ __('app.remember_me') }}</label>
             </div>
 
             {{-- Submit --}}
             <button type="submit"
                     class="w-full rounded-xl py-3 text-base font-semibold text-white transition-all hover:scale-105 hover:shadow-lg hover:shadow-[#29ABE2]/25"
                     style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">
-                Sign in
+                {{ __('app.sign_in') }}
             </button>
         </form>
 
         <p class="mt-6 text-center text-sm text-slate-400">
-            No account?
-            <a href="{{ route('register') }}" class="font-semibold text-[#29ABE2] hover:text-[#4CBDE8]">Register</a>
+            {{ __('app.no_account') }}
+            <a href="{{ route('register') }}" class="font-semibold text-[#29ABE2] hover:text-[#4CBDE8]">{{ __('app.register') }}</a>
         </p>
     </div>
 @endsection

@@ -29,7 +29,16 @@
             </h1>
             <p class="mt-2 flex flex-wrap gap-4 text-sm font-medium text-[#29ABE2]">
                 <span>📅 {{ $date->format('D, M d Y — H:i') }}</span>
-                <span>📍 {{ $e->location ?? 'TBA' }}</span>
+                <span class="flex items-center gap-2">
+                    📍 {{ $e->location ?? 'TBA' }}
+                    @if(!empty($e->location))
+                        <a href="https://www.google.com/maps/search/?api=1&query={{ urlencode($e->location) }}"
+                           target="_blank" rel="noopener noreferrer"
+                           class="inline-flex items-center gap-1 rounded-lg border border-[#29ABE2]/40 bg-[#29ABE2]/10 px-2 py-0.5 text-xs font-semibold text-[#29ABE2] transition-all hover:bg-[#29ABE2]/20">
+                            📍 {{ __('app.view_on_map') }}
+                        </a>
+                    @endif
+                </span>
             </p>
         </div>
     </div>
@@ -40,7 +49,7 @@
 
         <a href="{{ route('events.index') }}"
            class="text-sm font-semibold text-[#29ABE2] hover:text-[#4CBDE8] transition-colors">
-            ← Back to events
+            ← {{ __('app.back') }}
         </a>
 
         <div class="mt-8 grid gap-10 lg:grid-cols-10">
@@ -51,16 +60,28 @@
                 {{-- About --}}
                 <div class="rounded-2xl border border-white/10 p-6 shadow-sm"
                      style="background-color: #1a1a2e;">
-                    <h2 class="text-lg font-bold text-white">About this event</h2>
+                    <h2 class="text-lg font-bold text-white">{{ __('app.about_event') }}</h2>
                     <div class="mt-4 text-slate-300 leading-relaxed">
                         {!! nl2br(e($e->description ?? 'Join us for an unforgettable experience. More details will be available soon.')) !!}
                     </div>
+                    @if($e->lat && $e->lng)
+                        <div id="show-map" style="height:250px;"
+                             class="rounded-xl overflow-hidden border border-white/10 mt-4"></div>
+                        <script>
+                          document.addEventListener('DOMContentLoaded', function() {
+                            const map = L.map('show-map').setView([{{ $e->lat }}, {{ $e->lng }}], 15);
+                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+                            L.marker([{{ $e->lat }}, {{ $e->lng }}]).addTo(map)
+                              .bindPopup('{{ addslashes($e->location) }}').openPopup();
+                          });
+                        </script>
+                    @endif
                 </div>
 
                 {{-- Schedule --}}
                 <div class="rounded-2xl border border-white/10 p-6 shadow-sm"
                      style="background-color: #1a1a2e;">
-                    <h2 class="text-lg font-bold text-white">Schedule &amp; agenda</h2>
+                    <h2 class="text-lg font-bold text-white">{{ __('app.event_details') }}</h2>
                     <ul class="mt-4 space-y-3 text-sm">
                         @forelse($agenda ?? [] as $item)
                             <li class="flex gap-3 rounded-xl px-4 py-3"
@@ -80,29 +101,44 @@
                 </div>
 
                 {{-- Partners --}}
+                @if($event->partners->isNotEmpty())
                 <div class="rounded-2xl border border-white/10 p-6 shadow-sm"
                      style="background-color: #1a1a2e;">
-                    <h2 class="text-lg font-bold text-white">Partners</h2>
-                    <div class="mt-4 flex flex-wrap gap-3">
-                        @forelse($partners ?? ['MEGA PIXEL', 'EventHub', 'City Sponsors'] as $p)
-                            @php $name = is_string($p) ? $p : ($p->name ?? 'Partner'); @endphp
-                            <span class="inline-flex items-center rounded-xl border border-[#29ABE2]/30 bg-[#29ABE2]/10 px-4 py-2 text-sm font-semibold text-[#29ABE2]">
-                                {{ $name }}
-                            </span>
-                        @empty
-                            <p class="text-sm text-slate-500">Partners to be announced.</p>
-                        @endforelse
+                    <h2 class="text-lg font-bold text-white">{{ __('app.event_partners') }}</h2>
+                    <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                        @foreach($event->partners as $partner)
+                            <div class="rounded-xl border border-white/10 p-4" style="background-color: #0f0f23;">
+                                <p class="font-bold text-white">{{ $partner->name }}</p>
+                                @if($partner->website)
+                                    <a href="{{ $partner->website }}" target="_blank" rel="noopener noreferrer"
+                                       class="mt-1 flex items-center gap-1.5 text-sm text-[#29ABE2] hover:underline">
+                                        🌐 {{ $partner->website }}
+                                    </a>
+                                @endif
+                                @if($partner->email)
+                                    <p class="mt-1 flex items-center gap-1.5 text-sm text-slate-400">
+                                        ✉️ {{ $partner->email }}
+                                    </p>
+                                @endif
+                                @if($partner->phone)
+                                    <p class="mt-1 flex items-center gap-1.5 text-sm text-slate-400">
+                                        📞 {{ $partner->phone }}
+                                    </p>
+                                @endif
+                            </div>
+                        @endforeach
                     </div>
                 </div>
+                @endif
 
                 {{-- Participants count --}}
                 <div class="rounded-2xl border border-white/10 p-6"
                      style="background: linear-gradient(135deg, rgba(41,171,226,0.05), rgba(10,127,168,0.05));">
-                    <h2 class="text-lg font-bold text-white">Participants</h2>
+                    <h2 class="text-lg font-bold text-white">{{ __('app.participants') }}</h2>
                     <p class="mt-2 text-4xl font-extrabold text-[#29ABE2]">
                         {{ $participantsCount ?? $reg }}
                     </p>
-                    <p class="text-sm text-slate-400">people registered so far</p>
+                    <p class="text-sm text-slate-400">{{ __('app.registration_confirmed') }}</p>
                 </div>
             </div>
 
@@ -111,20 +147,22 @@
                 <div class="sticky top-24 rounded-2xl border border-[#29ABE2]/30 p-6 shadow-2xl shadow-[#29ABE2]/10"
                      style="background-color: #1a1a2e;">
 
-                    <p class="text-sm font-medium text-slate-400">Price</p>
-                    <p class="mt-1 text-2xl font-bold text-white">
-                        {{ $price !== null && $price !== '' ? number_format((float) $price, 2).' TND' : 'Free' }}
-                    </p>
+                    <p class="text-sm font-medium text-slate-400">{{ __('app.event_price') }}</p>
+                    @if($price !== null && $price !== '' && (float)$price > 0)
+                        <span class="text-[#29ABE2] font-bold text-lg">{{ number_format((float)$price, 2) }} TND</span>
+                    @else
+                        <span class="text-emerald-400 font-bold text-lg">🎟️ {{ __('app.event_free') }}</span>
+                    @endif
 
                     <div class="mt-4">
-                        <p class="text-sm font-medium text-slate-400">Spots remaining</p>
+                        <p class="text-sm font-medium text-slate-400">{{ __('app.spots_left') }}</p>
                         <p class="text-xl font-bold text-[#29ABE2]">{{ $remaining }} / {{ $cap }}</p>
                     </div>
 
                     {{-- Capacity bar --}}
                     <div class="mt-3">
                         <div class="flex justify-between text-xs text-slate-400 mb-1">
-                            <span>{{ $reg }} / {{ $cap }} spots filled</span>
+                            <span>{{ $reg }} / {{ $cap }} {{ __('app.spots_left') }}</span>
                             <span>{{ $percentage }}%</span>
                         </div>
                         <div class="h-2 w-full rounded-full bg-white/10">
@@ -142,22 +180,22 @@
 
                     @guest
                         <div class="mt-6 rounded-xl border border-[#29ABE2]/20 bg-[#29ABE2]/5 p-4">
-                            <p class="text-sm text-slate-300 text-center">Login to register for this event</p>
+                            <p class="text-sm text-slate-300 text-center">{{ __('app.sign_in') }}</p>
                             <a href="{{ route('login') }}"
                                class="mt-3 block w-full rounded-xl py-2.5 text-center text-sm font-semibold text-white transition-all hover:scale-[1.02]"
                                style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">
-                                Login to register
+                                {{ __('app.login') }}
                             </a>
                             <a href="{{ route('register') }}"
                                class="mt-2 block text-center text-sm font-semibold text-[#29ABE2] hover:text-[#4CBDE8]">
-                                Create an account
+                                {{ __('app.create_account') }}
                             </a>
                         </div>
                     @else
                         @if($remaining <= 0)
                             <button type="button" disabled
                                     class="mt-6 w-full cursor-not-allowed rounded-xl py-3 text-sm font-semibold text-slate-500 bg-white/5">
-                                Event Full
+                                {{ __('app.event_full') }}
                             </button>
                         @else
                             <form method="POST" action="{{ route('events.register', $e->id) }}" class="mt-6">
@@ -165,11 +203,11 @@
                                 <button type="submit"
                                         class="w-full rounded-xl py-3 text-sm font-semibold text-white transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-[#29ABE2]/25"
                                         style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">
-                                    Register Now
+                                    {{ __('app.register_now') }}
                                 </button>
                             </form>
                             <p class="mt-2 text-center text-xs text-slate-500">
-                                Secure your spot today
+                                {{ __('app.registration_confirmed') }}
                             </p>
                         @endif
                     @endguest

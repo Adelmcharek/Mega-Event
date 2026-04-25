@@ -19,15 +19,18 @@
     $href       = data_get($event, 'url', route('events.show', $id));
     $isFull     = $registered >= $capacity && $capacity > 0;
     $percentage = $capacity > 0 ? round(($registered / $capacity) * 100) : 0;
+    $isPast     = $date && \Illuminate\Support\Carbon::parse($date)->endOfDay()->isPast();
 
     $categoryGradient = match(strtolower($category)) {
         'cultural'    => 'from-blue-700 to-cyan-600',
         'corporate'   => 'from-teal-700 to-emerald-600',
         default       => 'from-[#29ABE2] to-[#0A7FA8]',
     };
+
+    $wrapperClass = 'event-card group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#29ABE2]/40 hover:shadow-xl hover:shadow-[#29ABE2]/10' . ($isPast ? ' opacity-50' : '');
 @endphp
 
-<div {{ $attributes->merge(['class' => 'group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#29ABE2]/40 hover:shadow-xl hover:shadow-[#29ABE2]/10']) }}
+<div {{ $attributes->merge(['class' => $wrapperClass]) }}
      style="background-color: #1a1a2e;">
 
     {{-- Banner --}}
@@ -40,12 +43,18 @@
             </div>
         @endif
         {{-- Category badge --}}
-        <span class="absolute left-3 top-3 rounded-full bg-black/40 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
+        <span class="category-badge absolute left-3 top-3 rounded-full bg-black/40 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
             {{ $category }}
         </span>
+        {{-- Past event badge --}}
+        @if ($isPast)
+            <span class="absolute right-3 top-3 rounded-full bg-gray-700/90 px-3 py-1 text-xs font-bold text-gray-200 backdrop-blur-sm">
+                {{ __('app.event_past') }}
+            </span>
+        @endif
         {{-- Date badge --}}
         @if ($date)
-            <span class="absolute bottom-3 left-3 rounded-lg bg-black/50 px-2.5 py-1 text-xs font-bold text-white backdrop-blur-sm">
+            <span class="date-badge absolute bottom-3 left-3 rounded-lg bg-black/50 px-2.5 py-1 text-xs font-bold text-white backdrop-blur-sm">
                 {{ \Illuminate\Support\Carbon::parse($date)->format('D, M d Y') }}
             </span>
         @endif
@@ -82,13 +91,18 @@
         <div class="mt-auto flex gap-2 pt-5">
             <a href="{{ $href }}"
                class="inline-flex flex-1 items-center justify-center rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-slate-300 transition-all hover:border-[#29ABE2]/50 hover:text-[#29ABE2]">
-                View Details
+                {{ __('app.view_details') }}
             </a>
             @if ($showRegister)
-                @if ($isFull || $status === 'FULL')
+                @if ($isPast)
                     <button type="button" disabled
                             class="flex-1 cursor-not-allowed rounded-xl bg-white/5 px-4 py-2 text-sm font-semibold text-slate-500">
-                        Full
+                        {{ __('app.event_past') }}
+                    </button>
+                @elseif ($isFull || $status === 'FULL')
+                    <button type="button" disabled
+                            class="flex-1 cursor-not-allowed rounded-xl bg-white/5 px-4 py-2 text-sm font-semibold text-slate-500">
+                        {{ __('app.event_full') }}
                     </button>
                 @elseif ($status === 'COMING SOON')
                     <button type="button" disabled
@@ -99,7 +113,7 @@
                     <a href="{{ $href }}"
                        class="flex-1 text-center rounded-xl px-4 py-2 text-sm font-semibold text-white transition-all hover:scale-105 hover:shadow-lg hover:shadow-[#29ABE2]/25"
                        style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">
-                        Register Now
+                        {{ __('app.register_now') }}
                     </a>
                 @endif
             @endif

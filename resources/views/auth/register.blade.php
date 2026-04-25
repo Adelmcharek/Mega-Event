@@ -12,16 +12,16 @@
                  style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">
                 ME
             </div>
-            <h1 class="text-center text-2xl font-bold text-white">Create account</h1>
-            <p class="text-center text-sm text-slate-400">Join MEGA EVENT as a participant or organizer</p>
+            <h1 class="text-center text-2xl font-bold text-white">{{ __('app.create_account') }}</h1>
+            <p class="text-center text-sm text-slate-400">{{ __('app.sign_up') }}</p>
         </div>
 
-        <form method="POST" action="{{ route('register') }}" class="space-y-4">
+        <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data" class="space-y-4">
             @csrf
 
             {{-- Full Name --}}
             <div>
-                <label for="name" class="block text-sm font-medium text-slate-300">Full name</label>
+                <label for="name" class="block text-sm font-medium text-slate-300">{{ __('app.full_name') }}</label>
                 <input id="name" name="name" type="text"
                        value="{{ old('name') }}" required
                        placeholder="Your Name Here"
@@ -35,7 +35,7 @@
 
             {{-- Email --}}
             <div>
-                <label for="email" class="block text-sm font-medium text-slate-300">Email</label>
+                <label for="email" class="block text-sm font-medium text-slate-300">{{ __('app.email') }}</label>
                 <input id="email" name="email" type="email"
                        value="{{ old('email') }}" required
                        placeholder="yourname@example.com"
@@ -69,7 +69,7 @@
             }">
                 {{-- Password field --}}
                 <div>
-                    <label for="password" class="block text-sm font-medium text-slate-300">Password</label>
+                    <label for="password" class="block text-sm font-medium text-slate-300">{{ __('app.password') }}</label>
                     <div class="relative mt-1">
                         <input id="password" name="password"
                                :type="show ? 'text' : 'password'"
@@ -146,7 +146,7 @@
                 {{-- Confirm Password --}}
                 <div class="mt-4">
                     <label for="password_confirmation" class="block text-sm font-medium text-slate-300">
-                        Confirm password
+                        {{ __('app.confirm_password') }}
                     </label>
                     <div class="relative mt-1">
                         <input id="password_confirmation" name="password_confirmation"
@@ -171,7 +171,7 @@
 
             {{-- Role Selector --}}
             <div x-data="{ role: '{{ old('role', 'participant') }}' }">
-                <span class="block text-sm font-medium text-slate-300">Role</span>
+                <span class="block text-sm font-medium text-slate-300">{{ __('app.role') }}</span>
                 <div class="mt-3 grid grid-cols-2 gap-3">
 
                     {{-- Participant --}}
@@ -182,13 +182,13 @@
                            class="cursor-pointer flex flex-col items-center justify-center gap-2 rounded-2xl border-2 p-5 transition-all duration-300 text-center"
                            style="background-color: #111111;">
                         <span class="text-3xl">👥</span>
-                        <p class="text-sm font-semibold text-white">Participant</p>
-                        <p class="text-xs text-slate-400">Join events</p>
+                        <p class="text-sm font-semibold text-white">{{ __('app.role_participant') }}</p>
+                        <p class="text-xs text-slate-400">{{ __('app.join_events') }}</p>
                         <input type="radio" name="role" value="participant" class="hidden"
                                x-bind:checked="role === 'participant'">
                     </label>
 
-                    {{-- Organisateur --}}
+                    {{-- Organizer --}}
                     <label @click="role = 'organisateur'"
                            :class="role === 'organisateur'
                                ? 'border-[#29ABE2] shadow-lg shadow-[#29ABE2]/20'
@@ -196,8 +196,8 @@
                            class="cursor-pointer flex flex-col items-center justify-center gap-2 rounded-2xl border-2 p-5 transition-all duration-300 text-center"
                            style="background-color: #111111;">
                         <span class="text-3xl">📅</span>
-                        <p class="text-sm font-semibold text-white">Organisateur</p>
-                        <p class="text-xs text-slate-400">Create events</p>
+                        <p class="text-sm font-semibold text-white">{{ __('app.role_organizer') }}</p>
+                        <p class="text-xs text-slate-400">{{ __('app.create_events') }}</p>
                         <input type="radio" name="role" value="organisateur" class="hidden"
                                x-bind:checked="role === 'organisateur'">
                     </label>
@@ -208,20 +208,40 @@
                 @enderror
             </div>
 
+            {{-- Avatar Upload --}}
+            <div x-data="{ preview: null }">
+                <label class="block text-sm font-medium text-slate-300 mb-2">
+                    {{ __('app.profile_photo') }} <span class="text-slate-500">({{ __('app.optional') }})</span>
+                </label>
+                <div class="flex items-center gap-4">
+                    <label class="cursor-pointer">
+                        <div class="w-16 h-16 rounded-full border-2 border-dashed border-white/20
+                                    flex items-center justify-center hover:border-[#29ABE2]/50 transition overflow-hidden"
+                             style="background-color: #0f0f1a;">
+                            <img x-show="preview" x-bind:src="preview" class="w-full h-full object-cover">
+                            <span x-show="!preview" class="text-2xl">📷</span>
+                        </div>
+                        <input type="file" name="avatar" accept="image/*" class="sr-only"
+                               @change="preview = $event.target.files[0] ? URL.createObjectURL($event.target.files[0]) : null">
+                    </label>
+                    <p class="text-xs text-slate-500">{{ __('app.profile_photo') }}</p>
+                </div>
+            </div>
+
             {{-- Submit --}}
             <button type="submit"
                     class="mt-2 w-full rounded-xl py-3 text-base font-semibold text-white
                            transition-all duration-300 ease-in-out
                            hover:scale-[1.02] hover:shadow-lg hover:shadow-[#29ABE2]/25"
                     style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">
-                Create account
+                {{ __('app.create_account') }}
             </button>
         </form>
 
         <p class="mt-6 text-center text-sm text-slate-400">
-            Already registered?
+            {{ __('app.already_account') }}
             <a href="{{ route('login') }}" class="font-semibold text-[#29ABE2] hover:text-[#4CBDE8]">
-                Login
+                {{ __('app.login') }}
             </a>
         </p>
     </div>

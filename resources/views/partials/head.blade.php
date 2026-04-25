@@ -217,7 +217,132 @@
     }
     .theme-toggle-btn:hover { background-color: rgba(255,255,255,0.1); }
     :root.light .theme-toggle-btn:hover { background-color: rgba(0,0,0,0.07); }
+
+    /* ── Light mode: inline-style overrides ── */
+    .light [style*="background-color: #1a1a2e"] { background-color: #ffffff !important; }
+    .light [style*="background-color: #0f0f1a"] { background-color: #f8fafc !important; }
+    .light [style*="background-color: #0a0a1a"] { background-color: #f1f5f9 !important; }
+    .light [style*="background-color: #111827"] { background-color: #f1f5f9 !important; }
+    .light [style*="background: rgba(26"]        { background: #ffffff !important; }
+    .light .text-white                           { color: #0f172a !important; }
+    .light .text-slate-300                       { color: #475569 !important; }
+    .light .text-slate-400                       { color: #64748b !important; }
+    .light .border-white\/10                     { border-color: rgba(0,0,0,0.1) !important; }
+    .light input, .light select, .light textarea {
+        background-color: #f8fafc !important;
+        color: #0f172a !important;
+        border-color: rgba(0,0,0,0.15) !important;
+    }
+
+    /* Hero section */
+    .hero-section {
+        background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #0f0f23 100%);
+        transition: background 0.3s;
+    }
+    .light .hero-section {
+        background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 50%, #e8f4fd 100%) !important;
+    }
+    .light .hero-section h1,
+    .light .hero-section h2 {
+        color: #0f172a !important;
+        text-shadow: none !important;
+    }
+    .light .hero-section p {
+        color: #475569 !important;
+    }
+
+    /* Event cards light mode */
+    .light .event-card {
+        background-color: #ffffff !important;
+        border-color: rgba(0,0,0,0.08) !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+    }
+    .light .event-card:hover {
+        box-shadow: 0 8px 24px rgba(41,171,226,0.15) !important;
+        border-color: rgba(41,171,226,0.3) !important;
+    }
+    .light .event-card .category-badge {
+        background-color: rgba(0,0,0,0.5) !important;
+        color: #ffffff !important;
+    }
+    .light .event-card .date-badge {
+        background-color: rgba(0,0,0,0.6) !important;
+        color: #ffffff !important;
+    }
+    .light .event-card h3 {
+        color: #0f172a !important;
+    }
+    .light .event-card p {
+        color: #475569 !important;
+    }
+
+    /* Navbar */
+    .public-navbar {
+        background-color: rgba(10,10,26,0.95);
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .light .public-navbar {
+        background-color: rgba(255,255,255,0.98) !important;
+        border-bottom: 1px solid rgba(0,0,0,0.08) !important;
+        box-shadow: 0 1px 8px rgba(0,0,0,0.08) !important;
+    }
+    .light .public-navbar a {
+        color: #0f172a !important;
+    }
+    .light .public-navbar a:hover {
+        color: #29ABE2 !important;
+    }
+
+    /* Welcome sections */
+    .welcome-section {
+        background-color: var(--bg-primary);
+    }
+    .light .welcome-section {
+        background-color: #f1f5f9 !important;
+    }
+    .light .welcome-section h2,
+    .light .welcome-section h3 {
+        color: #0f172a !important;
+    }
+    .light .welcome-section p {
+        color: #475569 !important;
+    }
+
+    /* How it works cards */
+    .light .how-card {
+        background-color: #ffffff !important;
+        border-color: rgba(0,0,0,0.08) !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+    }
+    .light .how-card h3 {
+        color: #0f172a !important;
+    }
+    .light .how-card p {
+        color: #64748b !important;
+    }
+
+    /* User dropdown light mode */
+    .light .user-dropdown {
+        background-color: #ffffff !important;
+        border-color: rgba(0,0,0,0.1) !important;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important;
+    }
+    .light .user-dropdown a,
+    .light .user-dropdown p {
+        color: #475569 !important;
+    }
+    .light .user-dropdown a:hover {
+        background-color: rgba(0,0,0,0.05) !important;
+        color: #0f172a !important;
+    }
+    .light .user-dropdown .border-t {
+        border-color: rgba(0,0,0,0.08) !important;
+    }
 </style>
+
+{{-- Leaflet.js --}}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 {{-- Alpine.js (only once!) --}}
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js"></script>

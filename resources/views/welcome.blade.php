@@ -3,10 +3,12 @@
 @section('title', 'Home')
 
 @section('content')
+    
+   
+
     {{-- Hero --}}
     <section
-        class="relative min-h-screen w-full overflow-hidden flex items-center"
-        style="background: linear-gradient(135deg, #0A0A0A 0%, #0D1F2D 50%, #0A0A0A 100%);"
+        class="hero-section relative min-h-screen w-full overflow-hidden flex items-center"
     >
         <div class="pointer-events-none absolute left-1/4 top-20 z-0 h-72 w-72 animate-pulse rounded-full bg-[#29ABE2]/20 blur-3xl" aria-hidden="true"></div>
         <div class="pointer-events-none absolute bottom-20 right-1/4 z-0 h-96 w-96 animate-pulse rounded-full bg-[#0A7FA8]/15 blur-3xl" style="animation-delay: 1s;" aria-hidden="true"></div>
@@ -14,22 +16,19 @@
         <div class="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-center gap-12 px-6 py-20 lg:flex-row">
             <div class="min-w-0 flex-1 text-white">
                 <h1 class="mb-6 text-5xl font-extrabold leading-tight text-white lg:text-6xl">
-                    Discover &amp; Join <br>
-                    <span class="bg-gradient-to-r from-[#29ABE2] to-[#0A7FA8] bg-clip-text text-transparent">
-                        Extraordinary Events
-                    </span>
+                    {{ __('app.hero_title') }}
                 </h1>
                 <p class="mb-8 max-w-lg text-lg text-slate-300">
-                    MEGA EVENT brings people together. Find professional, cultural, and corporate events near you.
+                    {{ __('app.hero_subtitle') }}
                 </p>
                 <div class="flex flex-wrap gap-4">
                     <a href="{{ route('events.index') }}"
                        class="inline-block rounded-full bg-gradient-to-r from-[#29ABE2] to-[#0A7FA8] px-8 py-4 font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-[#29ABE2]/25">
-                        Browse Events
+                        {{ __('app.browse_events') }}
                     </a>
                     <a href="{{ route('register') }}"
                        class="inline-block rounded-full border-2 border-[#29ABE2] px-8 py-4 font-semibold text-[#29ABE2] transition-all duration-300 hover:bg-[#29ABE2]/10">
-                        Organize an Event
+                        {{ __('app.organize_event') }}
                     </a>
                 </div>
             </div>
@@ -98,30 +97,30 @@
         <div class="mx-auto flex max-w-7xl flex-col items-center justify-center gap-8 px-4 sm:flex-row sm:gap-16 sm:px-6 lg:px-8">
             <div class="text-center">
                 <p class="text-3xl font-extrabold text-[#29ABE2]" x-text="counts[0] + '+'">0+</p>
-                <p class="text-sm font-medium text-slate-400">Events</p>
+                <p class="text-sm font-medium text-slate-400">{{ __('app.stat_events') }}</p>
             </div>
             <div class="hidden h-10 w-px bg-white/10 sm:block" aria-hidden="true"></div>
             <div class="text-center">
                 <p class="text-3xl font-extrabold text-[#29ABE2]" x-text="counts[1].toLocaleString() + '+'">0+</p>
-                <p class="text-sm font-medium text-slate-400">Participants</p>
+                <p class="text-sm font-medium text-slate-400">{{ __('app.stat_participants') }}</p>
             </div>
             <div class="hidden h-10 w-px bg-white/10 sm:block" aria-hidden="true"></div>
             <div class="text-center">
                 <p class="text-3xl font-extrabold text-[#29ABE2]" x-text="counts[2] + '+'">0+</p>
-                <p class="text-sm font-medium text-slate-400">Partners</p>
+                <p class="text-sm font-medium text-slate-400">{{ __('app.stat_organizers') }}</p>
             </div>
         </div>
     </section>
 
     {{-- Featured Events --}}
-    <section class="py-16 lg:py-24" style="background-color: #0A0A0A;">
+    <section class="welcome-section py-16 lg:py-24">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                    <h2 class="text-3xl font-bold text-white">Featured Events</h2>
-                    <p class="mt-2 text-slate-400">Hand-picked experiences happening soon.</p>
+                    <h2 class="text-3xl font-bold text-white">{{ __('app.featured_events') }}</h2>
+                    <p class="mt-2 text-slate-400">{{ __('app.featured_subtitle') }}</p>
                 </div>
-                <a href="{{ route('events.index') }}" class="text-sm font-semibold text-[#29ABE2] hover:text-[#4CBDE8]">View all events →</a>
+                <a href="{{ route('events.index') }}" class="text-sm font-semibold text-[#29ABE2] hover:text-[#4CBDE8]">{{ __('app.view_all_events') }}</a>
             </div>
             <div class="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
                 @forelse($featuredEvents ?? [] as $event)
@@ -140,17 +139,17 @@
     </section>
 
     {{-- How it works --}}
-    <section class="border-t border-white/10 py-16 lg:py-24" style="background-color: #111111;">
+    <section class="welcome-section border-t border-white/10 py-16 lg:py-24">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 class="text-center text-3xl font-bold text-white">How it works</h2>
-            <p class="mx-auto mt-2 max-w-2xl text-center text-slate-400">Three simple steps from idea to unforgettable experience.</p>
+            <h2 class="text-center text-3xl font-bold text-white">{{ __('app.how_it_works') }}</h2>
+            <p class="mx-auto mt-2 max-w-2xl text-center text-slate-400">{{ __('app.how_subtitle') }}</p>
             <div class="mt-14 grid gap-10 md:grid-cols-3">
                 @foreach([
-                    ['num' => '1', 'title' => 'Create Event', 'desc' => 'Organizers submit events for admin review and publish when approved.'],
-                    ['num' => '2', 'title' => 'Register',     'desc' => 'Participants browse, filter, and secure their spot in seconds.'],
-                    ['num' => '3', 'title' => 'Attend',       'desc' => 'Show up, connect, and enjoy a seamless on-site experience.'],
+                    ['num' => '1', 'title' => __('app.step1_title'), 'desc' => __('app.step1_desc')],
+                    ['num' => '2', 'title' => __('app.step2_title'), 'desc' => __('app.step2_desc')],
+                    ['num' => '3', 'title' => __('app.step3_title'), 'desc' => __('app.step3_desc')],
                 ] as $step)
-                <div class="rounded-2xl border border-white/10 p-8 text-center shadow-sm transition hover:border-[#29ABE2]/30 hover:shadow-[#29ABE2]/10"
+                <div class="how-card rounded-2xl border border-white/10 p-8 text-center shadow-sm transition hover:border-[#29ABE2]/30 hover:shadow-[#29ABE2]/10"
                      style="background-color: #1a1a2e;">
                     <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#29ABE2] to-[#0A7FA8] text-2xl font-bold text-white shadow-lg">
                         {{ $step['num'] }}
@@ -166,11 +165,11 @@
     {{-- CTA Banner --}}
     <section style="background: linear-gradient(135deg, #0A7FA8, #29ABE2, #0A7FA8);" class="py-14">
         <div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-            <h2 class="text-2xl font-extrabold text-white sm:text-3xl">Ready to organize your next event?</h2>
-            <p class="mt-2 text-white/80">Get started free and reach thousands of attendees.</p>
+            <h2 class="text-2xl font-extrabold text-white sm:text-3xl">{{ __('app.cta_title') }}</h2>
+            <p class="mt-2 text-white/80">{{ __('app.cta_subtitle') }}</p>
             <a href="{{ route('register') }}"
                class="mt-8 inline-flex rounded-xl bg-white px-8 py-3 font-bold text-[#0A7FA8] shadow-lg transition hover:bg-slate-100">
-                Create your organizer account
+                {{ __('app.cta_button') }}
             </a>
         </div>
     </section>
