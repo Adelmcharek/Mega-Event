@@ -11,14 +11,15 @@
 
     <div class="flex min-h-screen">
         <aside
-            class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col transform border-r border-slate-800 bg-hero transition-transform duration-200 lg:static lg:translate-x-0"
+            class="fixed inset-y-0 left-0 z-40 flex flex-col w-64 transform border-r border-white/10 transition-transform duration-200 lg:static lg:translate-x-0"
+            style="background-color: #111827;"
             :class="{ '-translate-x-full': !sidebarOpen, 'translate-x-0': sidebarOpen }"
         >
             <div class="flex h-16 items-center justify-between border-b border-white/10 px-4">
-                <a href="{{ route('home') }}" class="flex items-center gap-2 font-extrabold text-white">
-                    <div class="flex h-9 w-9 items-center justify-center rounded-lg font-bold text-white text-sm"
+                <a href="{{ route('home') }}" class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-white text-lg flex-shrink-0"
                          style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">ME</div>
-                    MEGA EVENT
+                    <span class="text-xl font-black text-white tracking-tight">MEGA EVENT</span>
                 </a>
                 <button type="button" class="rounded-lg p-1 text-slate-400 hover:bg-white/10 lg:hidden" @click="sidebarOpen = false">✕</button>
             </div>
@@ -138,39 +139,41 @@
         </aside>
 
         <div class="flex flex-1 flex-col">
-            <header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-700/50 px-4 backdrop-blur md:px-6"
-                    style="background-color: var(--bg-secondary);">
-                <button type="button" class="rounded-lg p-2 text-gray-400 hover:bg-gray-800 lg:hidden" @click="sidebarOpen = true">☰</button>
-                <div class="flex flex-1 items-center justify-end gap-3">
+            <header class="sticky top-0 z-40 flex items-center justify-between px-6 py-3 border-b border-white/10"
+                    style="background-color: rgba(10,10,26,0.95); backdrop-filter: blur(10px);">
+                <div class="flex items-center gap-3">
+                    <button type="button" class="rounded-lg p-2 text-gray-400 hover:bg-white/10 lg:hidden" @click="sidebarOpen = true">☰</button>
+                    <h1 class="text-lg font-bold text-white">@yield('title')</h1>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleTheme()"
+                            class="w-9 h-9 rounded-xl flex items-center justify-center border border-white/10 hover:bg-white/10 transition-all"
+                            title="Toggle theme" aria-label="Toggle theme">
+                        <span id="theme-icon">🌙</span>
+                    </button>
                     <div class="flex items-center gap-1 rounded-xl border border-white/10 p-1"
-                         style="background-color: #0f0f1a;">
+                         style="background-color: rgba(0,0,0,0.2);">
                         <a href="{{ route('language.switch', 'en') }}"
                            class="px-3 py-1 rounded-lg text-xs font-bold transition-all
                            {{ app()->getLocale() === 'en' ? 'text-white' : 'text-slate-400 hover:text-white' }}"
-                           style="{{ app()->getLocale() === 'en' ? 'background: linear-gradient(135deg, #29ABE2, #0A7FA8);' : '' }}">
-                            EN
-                        </a>
+                           style="{{ app()->getLocale() === 'en' ? 'background: linear-gradient(135deg, #29ABE2, #0A7FA8);' : '' }}">EN</a>
                         <a href="{{ route('language.switch', 'fr') }}"
                            class="px-3 py-1 rounded-lg text-xs font-bold transition-all
                            {{ app()->getLocale() === 'fr' ? 'text-white' : 'text-slate-400 hover:text-white' }}"
-                           style="{{ app()->getLocale() === 'fr' ? 'background: linear-gradient(135deg, #29ABE2, #0A7FA8);' : '' }}">
-                            FR
-                        </a>
+                           style="{{ app()->getLocale() === 'fr' ? 'background: linear-gradient(135deg, #29ABE2, #0A7FA8);' : '' }}">FR</a>
                     </div>
-                    <span class="flex h-9 w-9 items-center justify-center rounded-full overflow-hidden text-sm font-bold text-white flex-shrink-0"
-                          style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">
+                    <div class="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center font-bold text-white text-sm flex-shrink-0"
+                         style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">
                         @if(auth()->user()->avatar)
                             <img src="{{ Storage::url(auth()->user()->avatar) }}"
                                  class="w-full h-full object-cover" alt="avatar">
                         @else
                             {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                         @endif
-                    </span>
+                    </div>
                     <span class="hidden text-sm font-semibold text-white sm:inline">{{ auth()->user()->name }}</span>
-                    <span class="rounded-full bg-red-600 px-2 py-0.5 text-xs font-bold uppercase text-white">{{ __('app.admin_label') }}</span>
-                    <button onclick="toggleTheme()" class="theme-toggle-btn" title="Toggle theme" aria-label="Toggle theme">
-                        <span class="theme-toggle-icon">☀️</span>
-                    </button>
+                    <span class="rounded-full px-2 py-0.5 text-xs font-bold uppercase"
+                          style="background: #ef444420; color: #ef4444;">{{ __('app.admin_label') }}</span>
                 </div>
             </header>
             @if(auth()->user() && !auth()->user()->hasVerifiedEmail())

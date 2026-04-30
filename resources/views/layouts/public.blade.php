@@ -9,16 +9,16 @@
     <x-flash-messages />
 
     {{-- Navbar --}}
-    <header class="public-navbar sticky top-0 z-50 border-b border-white/10 backdrop-blur-md"
+    <header class="public-navbar sticky top-0 z-50 h-16 flex items-center border-b border-white/10 backdrop-blur-md"
             style="background-color: var(--bg-navbar);"
             x-data="{ mobileOpen: false }">
-        <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+        <div class="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
 
             {{-- Logo --}}
-            <a href="{{ route('home') }}" class="flex items-center gap-2 text-xl font-extrabold tracking-tight text-white">
-                <div class="flex h-9 w-9 items-center justify-center rounded-lg font-bold text-white text-sm"
+            <a href="{{ route('home') }}" class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-white text-lg flex-shrink-0"
                      style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">ME</div>
-                MEGA EVENT {{-- ✅ Fixed --}}
+                <span class="text-xl font-black text-white tracking-tight">MEGA EVENT</span>
             </a>
 
             {{-- Desktop nav --}}
@@ -35,11 +35,13 @@
                 </a>
 
                 @guest
-                    <button onclick="toggleTheme()" class="theme-toggle-btn" title="Toggle theme" aria-label="Toggle theme">
-                        <span class="theme-toggle-icon">☀️</span>
+                    <button onclick="toggleTheme()"
+                            class="w-9 h-9 rounded-xl flex items-center justify-center border border-white/10 hover:bg-white/10 transition-all"
+                            title="Toggle theme" aria-label="Toggle theme">
+                        <span id="theme-icon">🌙</span>
                     </button>
                     <div class="flex items-center gap-1 rounded-xl border border-white/10 p-1"
-                         style="background-color: #0f0f1a;">
+                         style="background-color: rgba(0,0,0,0.2);">
                         <a href="{{ route('language.switch', 'en') }}"
                            class="px-3 py-1 rounded-lg text-xs font-bold transition-all
                            {{ app()->getLocale() === 'en' ? 'text-white' : 'text-slate-400 hover:text-white' }}"
@@ -69,15 +71,22 @@
                         {{ __('app.dashboard') }}
                     </a>
                     <div class="ml-2 flex items-center gap-2 border-l border-white/10 pl-3">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white"
+                        <div class="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center font-bold text-white text-sm flex-shrink-0"
                              style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">
-                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                            @if(auth()->user()->avatar)
+                                <img src="{{ Storage::url(auth()->user()->avatar) }}"
+                                     class="w-full h-full object-cover" alt="avatar">
+                            @else
+                                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                            @endif
                         </div>
-                        <button onclick="toggleTheme()" class="theme-toggle-btn" title="Toggle theme" aria-label="Toggle theme">
-                            <span class="theme-toggle-icon">☀️</span>
+                        <button onclick="toggleTheme()"
+                                class="w-9 h-9 rounded-xl flex items-center justify-center border border-white/10 hover:bg-white/10 transition-all"
+                                title="Toggle theme" aria-label="Toggle theme">
+                            <span id="theme-icon">🌙</span>
                         </button>
                         <div class="flex items-center gap-1 rounded-xl border border-white/10 p-1"
-                             style="background-color: #0f0f1a;">
+                             style="background-color: rgba(0,0,0,0.2);">
                             <a href="{{ route('language.switch', 'en') }}"
                                class="px-3 py-1 rounded-lg text-xs font-bold transition-all
                                {{ app()->getLocale() === 'en' ? 'text-white' : 'text-slate-400 hover:text-white' }}"

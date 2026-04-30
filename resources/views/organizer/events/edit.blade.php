@@ -80,8 +80,9 @@
                             <label for="date" class="block text-sm font-medium text-slate-300 mb-1.5">{{ __('app.event_date') }}</label>
                             <input id="date" name="date" type="datetime-local"
                                    value="{{ old('date', isset($e->date) ? \Carbon\Carbon::parse($e->date)->format('Y-m-d\TH:i') : '') }}"
+                                   min="{{ now()->format('Y-m-d\TH:i') }}"
                                    class="w-full rounded-xl border border-white/10 px-4 py-2.5 text-white focus:border-[#29ABE2] focus:ring-1 focus:ring-[#29ABE2] transition"
-                                   style="background-color: #0f0f1a;">
+                                   style="background-color: var(--bg-input);">
                         </div>
 
                     </div>

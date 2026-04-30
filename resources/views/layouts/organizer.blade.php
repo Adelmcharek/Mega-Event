@@ -12,7 +12,8 @@
     <div class="flex min-h-screen">
         {{-- Sidebar --}}
         <aside
-            class="fixed inset-y-0 left-0 z-40 w-64 transform border-r border-slate-800 bg-hero transition-transform duration-200 lg:static lg:translate-x-0"
+            class="fixed inset-y-0 left-0 z-40 flex flex-col w-64 transform border-r border-white/10 transition-transform duration-200 lg:static lg:translate-x-0"
+            style="background-color: #111827;"
             :class="{
                 '-translate-x-full': !sidebarOpen,
                 'translate-x-0': sidebarOpen,
@@ -21,10 +22,11 @@
             }"
         >
             <div class="flex h-16 items-center justify-between border-b border-white/10 px-4">
-                <a href="{{ route('home') }}" class="flex items-center gap-2 font-extrabold text-white" :class="{ 'lg:justify-center lg:gap-0': sidebarCollapsed }">
-                    <div class="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-white text-sm shadow-[0_0_20px_rgba(41,171,226,0.4)]" style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">ME</div>
-                    <span class="lg:hidden" x-show="!sidebarCollapsed || window.innerWidth < 1024">{{ __('app.organizer_label') }}</span>
-                    <span class="hidden font-semibold lg:inline" x-show="!sidebarCollapsed">{{ __('app.organizer_label') }}</span>
+                <a href="{{ route('home') }}" class="flex items-center gap-3" :class="{ 'lg:justify-center lg:gap-0': sidebarCollapsed }">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-white text-lg flex-shrink-0"
+                         style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">ME</div>
+                    <span class="text-xl font-black text-white tracking-tight lg:hidden" x-show="!sidebarCollapsed || window.innerWidth < 1024">MEGA EVENT</span>
+                    <span class="hidden text-xl font-black text-white tracking-tight lg:inline" x-show="!sidebarCollapsed">MEGA EVENT</span>
                 </a>
                 <button type="button" class="rounded-lg p-1 text-slate-400 hover:bg-white/10 hover:text-white lg:hidden" @click="sidebarOpen = false" aria-label="Close menu">✕</button>
             </div>
@@ -162,45 +164,43 @@
         </aside>
 
         <div class="flex flex-1 flex-col lg:ml-0">
-            <header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-700/50 px-4 backdrop-blur md:px-6"
-                    style="background-color: var(--bg-secondary);">
-                <button type="button" class="rounded-lg p-2 text-gray-400 hover:bg-gray-800 lg:hidden" @click="sidebarOpen = true" aria-label="Open menu">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                </button>
-                <div class="flex flex-1 items-center justify-end gap-3">
-                    <div class="flex items-center gap-2">
-                        <span class="flex h-9 w-9 items-center justify-center rounded-full overflow-hidden bg-gradient-to-br from-[#29ABE2] to-[#0A7FA8] text-sm font-bold text-white flex-shrink-0">
-                            @if(auth()->user()->avatar)
-                                <img src="{{ Storage::url(auth()->user()->avatar) }}"
-                                     class="w-full h-full object-cover" alt="avatar">
-                            @else
-                                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                            @endif
-                        </span>
-                        <span class="hidden text-sm font-semibold text-white sm:inline">{{ auth()->user()->name }}</span>
-                    </div>
-                    <button onclick="toggleTheme()" class="theme-toggle-btn" title="Toggle theme" aria-label="Toggle theme">
-                        <span class="theme-toggle-icon">☀️</span>
+            <header class="sticky top-0 z-40 flex items-center justify-between px-6 py-3 border-b border-white/10"
+                    style="background-color: rgba(10,10,26,0.95); backdrop-filter: blur(10px);">
+                <div class="flex items-center gap-3">
+                    <button type="button" class="rounded-lg p-2 text-gray-400 hover:bg-white/10 lg:hidden" @click="sidebarOpen = true" aria-label="Open menu">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    </button>
+                    <h1 class="text-lg font-bold text-white">@yield('title')</h1>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleTheme()"
+                            class="w-9 h-9 rounded-xl flex items-center justify-center border border-white/10 hover:bg-white/10 transition-all"
+                            title="Toggle theme" aria-label="Toggle theme">
+                        <span id="theme-icon">🌙</span>
                     </button>
                     <div class="flex items-center gap-1 rounded-xl border border-white/10 p-1"
-                         style="background-color: #0f0f1a;">
+                         style="background-color: rgba(0,0,0,0.2);">
                         <a href="{{ route('language.switch', 'en') }}"
                            class="px-3 py-1 rounded-lg text-xs font-bold transition-all
                            {{ app()->getLocale() === 'en' ? 'text-white' : 'text-slate-400 hover:text-white' }}"
-                           style="{{ app()->getLocale() === 'en' ? 'background: linear-gradient(135deg, #29ABE2, #0A7FA8);' : '' }}">
-                            EN
-                        </a>
+                           style="{{ app()->getLocale() === 'en' ? 'background: linear-gradient(135deg, #29ABE2, #0A7FA8);' : '' }}">EN</a>
                         <a href="{{ route('language.switch', 'fr') }}"
                            class="px-3 py-1 rounded-lg text-xs font-bold transition-all
                            {{ app()->getLocale() === 'fr' ? 'text-white' : 'text-slate-400 hover:text-white' }}"
-                           style="{{ app()->getLocale() === 'fr' ? 'background: linear-gradient(135deg, #29ABE2, #0A7FA8);' : '' }}">
-                            FR
-                        </a>
+                           style="{{ app()->getLocale() === 'fr' ? 'background: linear-gradient(135deg, #29ABE2, #0A7FA8);' : '' }}">FR</a>
                     </div>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="rounded-xl border border-white/10 px-3 py-1.5 text-sm font-semibold text-slate-300 transition-all hover:bg-white/5 hover:text-white">{{ __('app.logout') }}</button>
-                    </form>
+                    <div class="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center font-bold text-white text-sm flex-shrink-0"
+                         style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">
+                        @if(auth()->user()->avatar)
+                            <img src="{{ Storage::url(auth()->user()->avatar) }}"
+                                 class="w-full h-full object-cover" alt="avatar">
+                        @else
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                        @endif
+                    </div>
+                    <span class="hidden text-sm font-semibold text-white sm:inline">{{ auth()->user()->name }}</span>
+                    <span class="rounded-full px-2 py-0.5 text-xs font-bold uppercase"
+                          style="background: #29ABE220; color: #29ABE2;">{{ __('app.organizer_label') }}</span>
                 </div>
             </header>
 
