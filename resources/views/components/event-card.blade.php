@@ -1,7 +1,6 @@
 @props([
     'event',
     'variant' => 'default',
-    'showRegister' => false,
 ])
 
 @php
@@ -21,12 +20,6 @@
     $percentage = $capacity > 0 ? round(($registered / $capacity) * 100) : 0;
     $isPast     = $date && \Illuminate\Support\Carbon::parse($date)->endOfDay()->isPast();
 
-    $categoryGradient = match(strtolower($category)) {
-        'cultural'    => 'from-blue-700 to-cyan-600',
-        'corporate'   => 'from-teal-700 to-emerald-600',
-        default       => 'from-[#29ABE2] to-[#0A7FA8]',
-    };
-
     $wrapperClass = 'event-card group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#29ABE2]/40 hover:shadow-xl hover:shadow-[#29ABE2]/10' . ($isPast ? ' opacity-50' : '');
 @endphp
 
@@ -34,12 +27,13 @@
      style="background-color: #1a1a2e;">
 
     {{-- Banner --}}
-    <div class="relative h-40 overflow-hidden bg-gradient-to-br {{ $categoryGradient }}">
+    <div class="relative h-40 overflow-hidden">
         @if ($cover)
             <img src="{{ $cover }}" alt="" class="h-full w-full object-cover opacity-90 transition group-hover:scale-105">
         @else
-            <div class="absolute inset-0 opacity-20"
-                 style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.3\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/svg%3E')">
+            <div class="w-full h-full event-placeholder"
+                 data-category="{{ strtolower($category) }}"
+                 style="background-color: #1a1a2e;">
             </div>
         @endif
         {{-- Category badge --}}
@@ -88,34 +82,56 @@
         </div>
 
         {{-- Action buttons --}}
-        <div class="mt-auto flex gap-2 pt-5">
-            <a href="{{ $href }}"
-               class="inline-flex flex-1 items-center justify-center rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-slate-300 transition-all hover:border-[#29ABE2]/50 hover:text-[#29ABE2]">
-                {{ __('app.view_details') }}
-            </a>
-            @if ($showRegister)
-                @if ($isPast)
-                    <button type="button" disabled
-                            class="flex-1 cursor-not-allowed rounded-xl bg-white/5 px-4 py-2 text-sm font-semibold text-slate-500">
-                        {{ __('app.event_past') }}
-                    </button>
-                @elseif ($isFull || $status === 'FULL')
-                    <button type="button" disabled
-                            class="flex-1 cursor-not-allowed rounded-xl bg-white/5 px-4 py-2 text-sm font-semibold text-slate-500">
-                        {{ __('app.event_full') }}
-                    </button>
-                @elseif ($status === 'COMING SOON')
-                    <button type="button" disabled
-                            class="flex-1 cursor-not-allowed rounded-xl bg-white/5 px-4 py-2 text-sm font-semibold text-slate-500">
-                        Coming Soon
+        <div class="mt-auto pt-5">
+            @if($event->date < now())
+                {{-- Événement passé --}}
+                <button disabled
+                        class="w-full rounded-xl py-2.5 text-sm font-semibold
+                               text-slate-500 cursor-not-allowed border border-white/5"
+                        style="background-color: rgba(255,255,255,0.03);">
+                    {{ __('app.event_past') }}
+                </button>
+
+            @elseif($event->isFull())
+                {{-- Événement complet --}}
+                <button disabled
+                        class="w-full rounded-xl py-2.5 text-sm font-semibold
+                               text-slate-500 cursor-not-allowed border border-white/5"
+                        style="background-color: rgba(255,255,255,0.03);">
+                    {{ __('app.event_full') }}
+                </button>
+
+            @elseif(auth()->check() && auth()->user()->isParticipant())
+                {{-- Participant connecté — bouton inscription --}}
+                @if(auth()->user()->registrations()->where('event_id', $event->id)->where('status','confirmed')->exists())
+                    {{-- Déjà inscrit --}}
+                    <button disabled
+                            class="w-full rounded-xl py-2.5 text-sm font-semibold
+                                   text-emerald-400 cursor-not-allowed border border-emerald-500/20"
+                            style="background-color: rgba(16,185,129,0.05);">
+                        ✓ {{ __('app.registration_confirmed') }}
                     </button>
                 @else
-                    <a href="{{ $href }}"
-                       class="flex-1 text-center rounded-xl px-4 py-2 text-sm font-semibold text-white transition-all hover:scale-105 hover:shadow-lg hover:shadow-[#29ABE2]/25"
-                       style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">
-                        {{ __('app.register_now') }}
-                    </a>
+                    {{-- S'inscrire --}}
+                    <form method="POST" action="{{ route('registrations.store', $event) }}">
+                        @csrf
+                        <button type="submit"
+                                class="w-full rounded-xl py-2.5 text-sm font-semibold
+                                       text-white transition hover:scale-105"
+                                style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">
+                            {{ __('app.register_now') }}
+                        </button>
+                    </form>
                 @endif
+
+            @else
+                {{-- Non connecté ou organisateur/admin — voir détails --}}
+                <a href="{{ route('events.show', $event) }}"
+                   class="block w-full rounded-xl py-2.5 text-sm font-semibold
+                          text-center text-white transition hover:scale-105"
+                   style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">
+                    {{ __('app.view_details') }}
+                </a>
             @endif
         </div>
     </div>

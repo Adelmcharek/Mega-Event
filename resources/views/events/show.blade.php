@@ -14,10 +14,16 @@
     @endphp
 
     {{-- Hero Banner --}}
-    <div class="relative h-64 w-full overflow-hidden md:h-80"
-         style="background: linear-gradient(135deg, #0D1F2D 0%, #29ABE2 100%);">
-        @if(!empty($e->cover_url))
-            <img src="{{ $e->cover_url }}" alt="" class="absolute inset-0 h-full w-full object-cover mix-blend-overlay opacity-90">
+    <div class="relative h-64 w-full overflow-hidden md:h-80">
+        @if($event->cover_image)
+            <img src="{{ Storage::url($event->cover_image) }}"
+                 class="w-full h-full object-cover"
+                 alt="{{ $event->title }}">
+        @else
+            <div class="w-full h-full event-placeholder"
+                 data-category="{{ $event->category }}"
+                 style="background-color: #1a1a2e;">
+            </div>
         @endif
         <div class="absolute inset-0" style="background: rgba(10,10,10,0.5);"></div>
         <div class="relative mx-auto flex h-full max-w-7xl flex-col justify-end px-4 pb-10 sm:px-6 lg:px-8">
@@ -198,7 +204,7 @@
                                 {{ __('app.event_full') }}
                             </button>
                         @else
-                            <form method="POST" action="{{ route('events.register', $e->id) }}" class="mt-6">
+                            <form method="POST" action="{{ route('registrations.store', $e->id) }}" class="mt-6">
                                 @csrf
                                 <button type="submit"
                                         class="w-full rounded-xl py-3 text-sm font-semibold text-white transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-[#29ABE2]/25"

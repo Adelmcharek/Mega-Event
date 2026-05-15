@@ -321,6 +321,29 @@
         color: #64748b !important;
     }
 
+    /* ── Event placeholder (no cover image) ── */
+    .event-placeholder {
+        background-color: #1a1a2e !important;
+    }
+    .light .event-placeholder[data-category="professional"] {
+        background: linear-gradient(135deg, #29ABE2, #0A7FA8) !important;
+    }
+    .light .event-placeholder[data-category="cultural"] {
+        background: linear-gradient(135deg, #10b981, #059669) !important;
+    }
+    .light .event-placeholder[data-category="corporate"] {
+        background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+    }
+    .light .event-placeholder[data-category="educational"] {
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
+    }
+    .light .event-placeholder[data-category="social"] {
+        background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+    }
+    .light .event-placeholder[data-category="sports"] {
+        background: linear-gradient(135deg, #f97316, #ea580c) !important;
+    }
+
     /* User dropdown light mode */
     .light .user-dropdown {
         background-color: #ffffff !important;

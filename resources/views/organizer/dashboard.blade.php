@@ -109,6 +109,52 @@
             </table>
         </div>
     </div>
+
+    {{-- Recommendations --}}
+    <div class="mt-6 rounded-2xl border border-white/10 p-6"
+         style="background-color: #1a1a2e;">
+      <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+        🤖 {{ __('app.recommendations') }}
+        <span class="text-xs font-normal text-slate-400 ml-2">
+          Powered by Collaborative Filtering
+        </span>
+      </h2>
+      @if(isset($recommendedEvents) && $recommendedEvents->isNotEmpty())
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          @foreach($recommendedEvents as $event)
+            <a href="{{ route('events.show', $event) }}"
+               class="block rounded-xl border border-white/10 p-4
+                      hover:border-[#29ABE2]/40 hover:bg-white/5 transition-all">
+              <span class="inline-block px-2 py-0.5 rounded-full text-xs font-bold mb-2"
+                    style="background: #29ABE220; color: #29ABE2;">
+                {{ ucfirst($event->category) }}
+              </span>
+              <h3 class="text-white font-semibold text-sm mb-1">{{ $event->title }}</h3>
+              <p class="text-slate-400 text-xs mb-1">
+                📅 {{ \Carbon\Carbon::parse($event->date)->format('d M Y') }}
+              </p>
+              <p class="text-slate-400 text-xs mb-3">📍 {{ $event->location }}</p>
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-slate-500">
+                  @if(isset($event->recommendation_reason) && $event->recommendation_reason === 'collaborative_filtering')
+                    🤖 Based on similar users
+                  @else
+                    🔥 Popular event
+                  @endif
+                </span>
+                @if($event->price > 0)
+                  <span class="text-xs font-bold text-[#29ABE2]">{{ $event->price }} TND</span>
+                @else
+                  <span class="text-xs font-bold text-emerald-400">Free</span>
+                @endif
+              </div>
+            </a>
+          @endforeach
+        </div>
+      @else
+        <p class="text-slate-400 text-sm">{{ __('app.no_recommendations') }}</p>
+      @endif
+    </div>
 @endsection
 
 @push('scripts')

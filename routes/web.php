@@ -9,6 +9,7 @@ use App\Http\Controllers\Organizer\EventController as OrganizerEventController;
 use App\Http\Controllers\Organizer\ProfileController as OrganizerProfileController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Participant\RegistrationController;
+use App\Services\RecommenderService;
 use App\Models\Event;
 use App\Models\Partner;
 use App\Models\Registration;
@@ -42,7 +43,7 @@ Route::get('/', function () {
 })->name('home');
 
 // Catalogue des événements avec filtres (recherche, lieu, date, catégorie, mode)
-Route::get('/events', function (Request $request) {
+Route::get('/events', function (Request $request, RecommenderService $recommender) {
     $query = Event::where('status', 'published')
         ->where('visibility', 'public')
         ->withCount('registrations');
@@ -105,7 +106,20 @@ Route::get('/events', function (Request $request) {
     $upcomingEvents = $allEvents->filter(fn($e) => Carbon::parse($e->date)->endOfDay()->greaterThanOrEqualTo($today));
     $pastEvents     = $allEvents->filter(fn($e) => Carbon::parse($e->date)->endOfDay()->lessThan($today));
 
-    return view('events.index', compact('upcomingEvents', 'pastEvents'));
+    $recommendedEvents = collect();
+    if (auth()->check()) {
+        $recommendations = $recommender->getRecommendations(auth()->id(), 3);
+        $recommendedEvents = collect($recommendations)->map(function ($item) {
+            $event = \App\Models\Event::find($item['id']);
+            if ($event) {
+                $event->recommendation_reason = $item['reason'];
+                $event->recommendation_score  = $item['score'];
+            }
+            return $event;
+        })->filter();
+    }
+
+    return view('events.index', compact('upcomingEvents', 'pastEvents', 'recommendedEvents'));
 })->name('events.index');
 
 // Détail d'un événement — accessible publiquement si publié, ou par l'admin pour tous statuts
@@ -173,7 +187,7 @@ Route::post('/email/verification-notification', function (Request $request) {
 Route::middleware(['auth', 'role:organisateur'])->prefix('organizer')->name('organizer.')->group(function () {
 
     // Tableau de bord : statistiques + graphiques des événements de l'organisateur
-    Route::get('/dashboard', function () {
+    Route::get('/dashboard', function (RecommenderService $recommender) {
         $userId = auth()->id();
 
         $totalEvents      = Event::where('user_id', $userId)->count();
@@ -215,6 +229,16 @@ Route::middleware(['auth', 'role:organisateur'])->prefix('organizer')->name('org
             ->groupBy('category')
             ->get();
 
+        $recommendations = $recommender->getRecommendations(auth()->id(), 3);
+        $recommendedEvents = collect($recommendations)->map(function($item) {
+            $event = \App\Models\Event::find($item['id']);
+            if ($event) {
+                $event->recommendation_reason = $item['reason'];
+                $event->recommendation_score  = $item['score'];
+            }
+            return $event;
+        })->filter();
+
         return view('organizer.dashboard', [
             'stats' => [
                 'total_events'      => $totalEvents,
@@ -226,6 +250,7 @@ Route::middleware(['auth', 'role:organisateur'])->prefix('organizer')->name('org
             'chartLabels'       => $chartLabels,
             'chartValues'       => $chartValues,
             'eventsByCategory'  => $eventsByCategory,
+            'recommendedEvents' => $recommendedEvents,
         ]);
     })->name('dashboard');
 
@@ -253,7 +278,7 @@ Route::middleware(['auth', 'role:organisateur'])->prefix('organizer')->name('org
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
 
     // Tableau de bord admin : KPIs globaux + graphiques + événements en attente
-    Route::get('/dashboard', function () {
+    Route::get('/dashboard', function (RecommenderService $recommender) {
         $pendingEvents = Event::where('status', 'pending')
             ->with('organiser')
             ->latest()
@@ -293,6 +318,16 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         $pieLabels = $categoryData->pluck('category')->map(fn ($c) => ucfirst($c))->values()->toArray();
         $pieValues = $categoryData->pluck('total')->values()->toArray();
 
+        $adminRecommendations = $recommender->getRecommendations(auth()->id(), 3);
+        $recommendedEvents = collect($adminRecommendations)->map(function($item) {
+            $event = \App\Models\Event::find($item['id']);
+            if ($event) {
+                $event->recommendation_reason = $item['reason'];
+                $event->recommendation_score  = $item['score'];
+            }
+            return $event;
+        })->filter();
+
         return view('admin.dashboard', [
             'stats' => [
                 'events'   => Event::count(),
@@ -306,6 +341,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
             'chartMonthValues'    => $chartMonthValues,
             'pieLabels'           => $pieLabels,
             'pieValues'           => $pieValues,
+            'recommendedEvents'   => $recommendedEvents,
         ]);
     })->name('dashboard');
 
@@ -386,39 +422,37 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 Route::middleware(['auth', 'role:participant'])->prefix('participant')->name('participant.')->group(function () {
 
     // Tableau de bord participant : événements à venir, historique, recommandations personnalisées
-    Route::get('/dashboard', function () {
-        $userId = auth()->id();
+    Route::get('/dashboard', function (RecommenderService $recommender) {
+        $user = auth()->user();
 
-        $registeredEventIds = Registration::where('user_id', $userId)
-            ->where('status', '!=', 'cancelled')
-            ->pluck('event_id');
-
-        // Prochains événements auxquels le participant est inscrit
-        $upcoming = Event::whereIn('id', $registeredEventIds)
-            ->where('date', '>', now())
-            ->withCount('registrations')
-            ->orderBy('date')
+        // Inscriptions à venir
+        $upcomingRegistrations = $user->registrations()
+            ->with('event')
+            ->whereHas('event', fn($q) => $q->where('date', '>', now()))
+            ->where('status', 'confirmed')
+            ->latest()
+            ->take(5)
             ->get();
 
-        $history = Registration::where('user_id', $userId)
+        $history = $user->registrations()
             ->with('event')
             ->latest('registered_at')
             ->get();
 
-        // Recommandations basées sur les catégories des événements déjà fréquentés
-        $preferredCategories = Event::whereIn('id', $registeredEventIds)->pluck('category')->unique();
+        // Recommandations via l'API Python
+        $recommendations = $recommender->getRecommendations($user->id, 3);
 
-        $recommended = Event::where('status', 'published')
-            ->whereNotIn('id', $registeredEventIds)
-            ->when($preferredCategories->isNotEmpty(), fn ($q) =>
-                $q->whereIn('category', $preferredCategories)
-            )
-            ->withCount('registrations')
-            ->orderByDesc('registrations_count')
-            ->take(3)
-            ->get();
+        // Convertir en objets Event pour la vue
+        $recommendedEvents = collect($recommendations)->map(function($item) {
+            $event = \App\Models\Event::find($item['id']);
+            if ($event) {
+                $event->recommendation_reason = $item['reason'];
+                $event->recommendation_score  = $item['score'];
+            }
+            return $event;
+        })->filter();
 
-        return view('participant.dashboard', compact('upcoming', 'history', 'recommended'));
+        return view('participant.dashboard', compact('upcomingRegistrations', 'history', 'recommendedEvents'));
     })->name('dashboard');
 
     Route::get('/registrations', [RegistrationController::class, 'index'])->name('registrations.index');
@@ -446,6 +480,6 @@ Route::middleware('auth')->group(function () {
 
 // Actions d'inscription et d'annulation accessibles à tous les rôles authentifiés
 Route::middleware('auth')->group(function () {
-    Route::post('events/{id}/register', [RegistrationController::class, 'store'])->name('events.register');
+    Route::post('events/{id}/register', [RegistrationController::class, 'store'])->name('registrations.store');
     Route::delete('registrations/{id}', [RegistrationController::class, 'destroy'])->name('registrations.cancel');
 });

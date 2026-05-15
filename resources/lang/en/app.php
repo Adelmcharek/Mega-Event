@@ -223,6 +223,7 @@ return [
   'my_upcoming_events'      => 'My Upcoming Events',
   'no_registrations'        => "You haven't registered for any events yet.",
   'recommendations'         => 'Recommended for you',
+  'no_recommendations'      => 'No recommendations available yet. Register for some events first!',
   'participant_label'       => 'Participant',
 
   // Auth extra
