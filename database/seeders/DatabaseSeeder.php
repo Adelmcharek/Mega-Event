@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
             'role'     => 'admin',
             'status'   => 'active',
+            'phone'    => '+216 20 123 456',
         ]);
 
         $organizer = User::create([
@@ -26,6 +27,7 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
             'role'     => 'organisateur',
             'status'   => 'active',
+            'phone'    => '+216 55 234 567',
         ]);
 
         $p1 = User::create([
@@ -34,6 +36,7 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
             'role'     => 'participant',
             'status'   => 'active',
+            'phone'    => '+216 22 345 678',
         ]);
 
         $p2 = User::create([
@@ -42,6 +45,7 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
             'role'     => 'participant',
             'status'   => 'active',
+            'phone'    => '+216 98 456 789',
         ]);
 
         // Events

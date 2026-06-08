@@ -35,6 +35,7 @@ class RegisteredUserController extends Controller
             'email'    => ['required', 'string', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Password::defaults()],
             'role'     => ['required', 'in:participant,organisateur'],
+            'phone'    => ['nullable', 'string', 'max:50'],
             'avatar'   => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ], [
             'email.required' => 'L\'adresse email est obligatoire.',
@@ -56,6 +57,7 @@ class RegisteredUserController extends Controller
             'email'    => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role'     => $validated['role'],
+            'phone'    => $request->phone,
             'avatar'   => $avatarPath,
         ]);
 

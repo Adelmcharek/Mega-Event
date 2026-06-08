@@ -34,15 +34,42 @@
             </div>
 
             {{-- Email --}}
-            <div>
+            <div x-data="{ email: '{{ old('email') }}',
+                           get valid() { return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(this.email); } }">
                 <label for="email" class="block text-sm font-medium text-slate-300">{{ __('app.email') }}</label>
                 <input id="email" name="email" type="email"
-                       value="{{ old('email') }}" required
+                       x-model="email"
+                       required
                        placeholder="yourname@example.com"
                        class="mt-1 w-full rounded-xl border px-3 py-2.5 text-white placeholder-slate-500
                               {{ $errors->has('email') ? 'border-red-500 ring-2 ring-red-500/20' : 'border-white/10' }}"
                        style="background-color: #111111;">
+                <p x-show="email.length > 0" x-cloak class="mt-1 text-sm"
+                   :class="valid ? 'text-emerald-400' : 'text-red-400'">
+                    <span x-show="valid">✓ {{ __('app.email_valid') }}</span>
+                    <span x-show="!valid">✗ {{ __('app.email_invalid') }}</span>
+                </p>
                 @error('email')
+                    <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
+                @enderror
+            </div>
+
+            {{-- Phone --}}
+            <div x-data="{ phone: '{{ old('phone') }}',
+                           get valid() { return /^[+]?[\d\s]{8,}$/.test(this.phone); } }">
+                <label for="phone" class="block text-sm font-medium text-slate-300">{{ __('app.phone') }}</label>
+                <input id="phone" name="phone" type="tel"
+                       x-model="phone"
+                       placeholder="+216 XX XXX XXX"
+                       class="mt-1 w-full rounded-xl border px-3 py-2.5 text-white placeholder-slate-500
+                              {{ $errors->has('phone') ? 'border-red-500 ring-2 ring-red-500/20' : 'border-white/10' }}"
+                       style="background-color: #111111;">
+                <p x-show="phone.length > 0" x-cloak class="mt-1 text-sm"
+                   :class="valid ? 'text-emerald-400' : 'text-red-400'">
+                    <span x-show="valid">✓ {{ __('app.phone_valid') }}</span>
+                    <span x-show="!valid">✗ {{ __('app.phone_invalid') }}</span>
+                </p>
+                @error('phone')
                     <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
                 @enderror
             </div>
@@ -61,7 +88,7 @@
                     return score;
                 },
                 get label() {
-                    return ['', 'Weak', 'Fair', 'Good', 'Strong'][this.strength];
+                    return ['', '{{ __("app.pwd_weak") }}', '{{ __("app.pwd_fair") }}', '{{ __("app.pwd_good") }}', '{{ __("app.pwd_strong") }}'][this.strength];
                 },
                 get color() {
                     return ['', 'red', 'amber', 'blue', 'emerald'][this.strength];
@@ -110,7 +137,7 @@
                                'text-[#29ABE2]':   color === 'blue',
                                'text-emerald-400': color === 'emerald'
                            }"
-                           x-text="'Strength: ' + label">
+                           x-text="'{{ __("app.pwd_strength") }}' + label">
                         </p>
                     </div>
 
@@ -119,22 +146,22 @@
                         <li class="flex items-center gap-2 text-xs"
                             :class="password.length >= 8 ? 'text-emerald-400' : 'text-slate-500'">
                             <span x-text="password.length >= 8 ? '✓' : '✗'"></span>
-                            At least 8 characters
+                            {{ __('app.pwd_min_chars') }}
                         </li>
                         <li class="flex items-center gap-2 text-xs"
                             :class="/[A-Z]/.test(password) ? 'text-emerald-400' : 'text-slate-500'">
                             <span x-text="/[A-Z]/.test(password) ? '✓' : '✗'"></span>
-                            One uppercase letter
+                            {{ __('app.pwd_uppercase') }}
                         </li>
                         <li class="flex items-center gap-2 text-xs"
                             :class="/[0-9]/.test(password) ? 'text-emerald-400' : 'text-slate-500'">
                             <span x-text="/[0-9]/.test(password) ? '✓' : '✗'"></span>
-                            One number
+                            {{ __('app.pwd_number') }}
                         </li>
                         <li class="flex items-center gap-2 text-xs"
                             :class="/[^A-Za-z0-9]/.test(password) ? 'text-emerald-400' : 'text-slate-500'">
                             <span x-text="/[^A-Za-z0-9]/.test(password) ? '✓' : '✗'"></span>
-                            One special character (!@#$...)
+                            {{ __('app.pwd_special') }}
                         </li>
                     </ul>
 

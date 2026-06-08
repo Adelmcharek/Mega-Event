@@ -67,7 +67,7 @@ class RegistrationController extends Controller
 
     // Annule une inscription — ne supprime pas l'enregistrement, change le statut à 'cancelled'
     // Impossible d'annuler une inscription pour un événement déjà passé
-    public function destroy(int $id): RedirectResponse
+    public function cancel(int $id): RedirectResponse
     {
         // Sécurité : filtre par user_id pour empêcher l'annulation des inscriptions d'autres utilisateurs
         $registration = Registration::where('user_id', auth()->id())

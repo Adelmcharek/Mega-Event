@@ -6,7 +6,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
     <style>[x-cloak]{display:none!important}</style>
 </head>
-<body class="min-h-screen bg-content font-sans text-slate-900 antialiased" x-data="{ sidebarOpen: false, sidebarCollapsed: false }">
+<body class="min-h-screen bg-content font-sans text-slate-900 antialiased" x-data="{ sidebarOpen: false }">
     <x-flash-messages />
 
     <div class="flex min-h-screen">
@@ -16,17 +16,15 @@
             style="background-color: #111827;"
             :class="{
                 '-translate-x-full': !sidebarOpen,
-                'translate-x-0': sidebarOpen,
-                'lg:w-20': sidebarCollapsed,
-                'lg:w-64': !sidebarCollapsed
+                'translate-x-0': sidebarOpen
             }"
         >
             <div class="flex h-16 items-center justify-between border-b border-white/10 px-4">
                 <a href="{{ route('home') }}" class="flex items-center gap-3" :class="{ 'lg:justify-center lg:gap-0': sidebarCollapsed }">
                     <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-white text-lg flex-shrink-0"
                          style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">ME</div>
-                    <span class="text-xl font-black text-white tracking-tight lg:hidden" x-show="!sidebarCollapsed || window.innerWidth < 1024">MEGA EVENT</span>
-                    <span class="hidden text-xl font-black text-white tracking-tight lg:inline" x-show="!sidebarCollapsed">MEGA EVENT</span>
+                    <span class="text-xl font-black text-white tracking-tight lg:hidden">MEGA EVENT</span>
+                    <span class="hidden text-xl font-black text-white tracking-tight lg:inline">MEGA EVENT</span>
                 </a>
                 <button type="button" class="rounded-lg p-1 text-slate-400 hover:bg-white/10 hover:text-white lg:hidden" @click="sidebarOpen = false" aria-label="Close menu">✕</button>
             </div>
@@ -43,13 +41,12 @@
                             {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                         @endif
                     </div>
-                    <div class="flex-1 text-left min-w-0" x-show="!sidebarCollapsed">
+                    <div class="flex-1 text-left min-w-0">
                         <p class="text-sm font-semibold text-white truncate">{{ auth()->user()->name }}</p>
                         <p class="text-xs text-slate-400 capitalize">{{ auth()->user()->role }}</p>
                     </div>
                     <svg class="w-4 h-4 text-slate-400 transition-transform duration-200"
                          :class="open ? 'rotate-180' : ''"
-                         x-show="!sidebarCollapsed"
                          fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                     </svg>
@@ -155,12 +152,6 @@
                     <span class="text-sm font-medium">{{ __('app.my_profile') }}</span>
                 </a>
             </nav>
-            <div class="border-t border-white/10 p-3">
-                <button type="button" @click="sidebarCollapsed = !sidebarCollapsed"
-                        class="hidden w-full items-center justify-center gap-2 rounded-xl border border-white/10 py-2 text-xs font-medium text-slate-300 hover:bg-white/10 lg:flex">
-                    <span x-text="sidebarCollapsed ? '{{ __('app.expand') }}' : '{{ __('app.collapse') }}'"></span>
-                </button>
-            </div>
         </aside>
 
         <div class="flex flex-1 flex-col lg:ml-0">

@@ -60,9 +60,8 @@ class EventController extends Controller
             $validated['cover_image'] = $request->file('cover')->store('covers', 'public');
         }
 
-        // Statut forcé à 'pending' : l'événement doit être validé par un administrateur
-        // avant d'être visible publiquement (status 'published')
-        $validated['status']  = 'pending';
+        // Si c'est un admin → publié directement, sinon → en attente de validation
+        $validated['status']  = auth()->user()->role === 'admin' ? 'published' : 'pending';
         $validated['user_id'] = auth()->id();
         $validated['price']   = $validated['price'] ?? 0;
         $validated['lat']     = $request->lat ?: null;
@@ -85,8 +84,14 @@ class EventController extends Controller
             }
         }
 
+        if (auth()->user()->role === 'admin') {
+            $message = __('app.event_published_success');
+        } else {
+            $message = __('app.event_submitted_success');
+        }
+
         return redirect()->route('organizer.events.index')
-            ->with('success', __('app.success_event_created'));
+            ->with('success', $message);
     }
 
     // Affiche le formulaire d'édition — vérifie que l'événement appartient bien à l'organisateur

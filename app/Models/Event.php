@@ -95,4 +95,16 @@ class Event extends Model
         if ($this->capacity === 0) return 0;
         return round(($this->registrations()->count() / $this->capacity) * 100, 1);
     }
+
+    const EUR_TO_TND = 3.3;
+
+    public function getPriceInTnd(): float
+    {
+        return round($this->price * self::EUR_TO_TND, 2);
+    }
+
+    public function getPriceInEur(): float
+    {
+        return $this->price;
+    }
 }

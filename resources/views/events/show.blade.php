@@ -100,7 +100,7 @@
                         @empty
                             <li class="rounded-xl px-4 py-3 text-slate-400"
                                 style="background-color: rgba(255,255,255,0.03);">
-                                Opening remarks, keynotes, and networking — full timetable announced before the event.
+                                {{ __('app.timetable_default') }}
                             </li>
                         @endforelse
                     </ul>
@@ -153,11 +153,32 @@
                 <div class="sticky top-24 rounded-2xl border border-[#29ABE2]/30 p-6 shadow-2xl shadow-[#29ABE2]/10"
                      style="background-color: #1a1a2e;">
 
-                    <p class="text-sm font-medium text-slate-400">{{ __('app.event_price') }}</p>
-                    @if($price !== null && $price !== '' && (float)$price > 0)
-                        <span class="text-[#29ABE2] font-bold text-lg">{{ number_format((float)$price, 2) }} TND</span>
+                    @if($event->price > 0)
+                      <div class="rounded-xl border border-white/10 p-4 mb-4"
+                           style="background-color: #0f0f1a;">
+                        <p class="text-xs text-slate-400 mb-2 uppercase tracking-wider font-semibold">
+                          {{ __('app.event_price') }}
+                        </p>
+                        <div class="flex items-center gap-3 flex-wrap">
+                          <span class="text-2xl font-bold text-[#29ABE2]">
+                            {{ number_format($event->price, 2) }} EUR
+                          </span>
+                          <span class="text-slate-500">≈</span>
+                          <span class="text-xl font-bold text-amber-400">
+                            {{ number_format($event->getPriceInTnd(), 2) }} TND
+                          </span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2">
+                          {{ __('app.eur_rate_note') }}
+                        </p>
+                      </div>
                     @else
-                        <span class="text-emerald-400 font-bold text-lg">🎟️ {{ __('app.event_free') }}</span>
+                      <div class="rounded-xl border border-emerald-500/20 p-4 mb-4"
+                           style="background-color: rgba(16,185,129,0.05);">
+                        <span class="text-emerald-400 font-bold text-lg">
+                          🎟️ {{ __('app.event_free') }}
+                        </span>
+                      </div>
                     @endif
 
                     <div class="mt-4">
@@ -180,43 +201,79 @@
 
                     @if($remaining <= 10 && $remaining > 0)
                         <p class="mt-3 text-xs font-semibold text-amber-400">
-                            🔥 Only {{ $remaining }} spots left!
+                            🔥 {{ str_replace(':n', $remaining, __('app.spots_hurry')) }}
                         </p>
                     @endif
 
-                    @guest
-                        <div class="mt-6 rounded-xl border border-[#29ABE2]/20 bg-[#29ABE2]/5 p-4">
-                            <p class="text-sm text-slate-300 text-center">{{ __('app.sign_in') }}</p>
-                            <a href="{{ route('login') }}"
-                               class="mt-3 block w-full rounded-xl py-2.5 text-center text-sm font-semibold text-white transition-all hover:scale-[1.02]"
-                               style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">
-                                {{ __('app.login') }}
-                            </a>
-                            <a href="{{ route('register') }}"
-                               class="mt-2 block text-center text-sm font-semibold text-[#29ABE2] hover:text-[#4CBDE8]">
-                                {{ __('app.create_account') }}
-                            </a>
-                        </div>
-                    @else
-                        @if($remaining <= 0)
-                            <button type="button" disabled
-                                    class="mt-6 w-full cursor-not-allowed rounded-xl py-3 text-sm font-semibold text-slate-500 bg-white/5">
-                                {{ __('app.event_full') }}
+                    <div class="mt-6">
+                    @auth
+                      @php
+                        $userRegistration = auth()->user()->registrations()
+                            ->where('event_id', $event->id)
+                            ->where('status', 'confirmed')
+                            ->first();
+                      @endphp
+
+                      @if($userRegistration)
+                        {{-- Déjà inscrit → bouton d'annulation (si événement futur) --}}
+                        @if(\Carbon\Carbon::parse($event->date)->isFuture())
+                          <form method="POST" action="{{ route('registrations.cancel', $userRegistration) }}"
+                                onsubmit="return confirm('{{ __('app.confirm_cancel_registration') }}');">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit"
+                                    class="w-full rounded-xl py-3 text-sm font-bold text-white transition hover:scale-105"
+                                    style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                              {{ __('app.cancel_registration') }}
                             </button>
+                          </form>
                         @else
-                            <form method="POST" action="{{ route('registrations.store', $e->id) }}" class="mt-6">
-                                @csrf
-                                <button type="submit"
-                                        class="w-full rounded-xl py-3 text-sm font-semibold text-white transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-[#29ABE2]/25"
-                                        style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">
-                                    {{ __('app.register_now') }}
-                                </button>
-                            </form>
-                            <p class="mt-2 text-center text-xs text-slate-500">
-                                {{ __('app.registration_confirmed') }}
-                            </p>
+                          <button disabled class="w-full rounded-xl py-3 text-sm font-semibold text-slate-500 cursor-not-allowed border border-white/5">
+                            {{ __('app.event_passed') }}
+                          </button>
                         @endif
-                    @endguest
+
+                      @elseif($event->isFull())
+                        {{-- Complet --}}
+                        <button disabled class="w-full rounded-xl py-3 text-sm font-semibold text-slate-500 cursor-not-allowed border border-white/5">
+                          {{ __('app.event_full') }}
+                        </button>
+
+                      @elseif(\Carbon\Carbon::parse($event->date)->isPast())
+                        {{-- Événement passé --}}
+                        <button disabled class="w-full rounded-xl py-3 text-sm font-semibold text-slate-500 cursor-not-allowed border border-white/5">
+                          {{ __('app.event_passed') }}
+                        </button>
+
+                      @else
+                        {{-- Pas inscrit → inscription (gratuit direct, payant via Stripe) --}}
+                        @if($event->price > 0)
+                          <a href="{{ route('payment.checkout', $event) }}"
+                             class="block w-full rounded-xl py-3 text-sm font-bold text-white text-center transition hover:scale-105"
+                             style="background: linear-gradient(135deg, #6366f1, #4f46e5);">
+                            💳 {{ __('app.pay_and_register') }} {{ number_format($event->price, 2) }} EUR
+                            (≈ {{ number_format($event->getPriceInTnd(), 2) }} TND)
+                          </a>
+                        @else
+                          <form method="POST" action="{{ route('registrations.store', $event) }}">
+                            @csrf
+                            <button type="submit"
+                                    class="w-full rounded-xl py-3 text-sm font-bold text-white transition hover:scale-105"
+                                    style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">
+                              🎟️ {{ __('app.register_now') }}
+                            </button>
+                          </form>
+                        @endif
+                      @endif
+                    @else
+                      {{-- Non connecté --}}
+                      <a href="{{ route('login') }}"
+                         class="block w-full rounded-xl py-3 text-sm font-bold text-white text-center transition hover:scale-105"
+                         style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">
+                        {{ __('app.login_to_register') }}
+                      </a>
+                    @endauth
+                    </div>
                 </div>
             </div>
 

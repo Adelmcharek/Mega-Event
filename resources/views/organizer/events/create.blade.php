@@ -1,12 +1,12 @@
-@extends('layouts.organizer')
+@extends(auth()->user()->role === 'admin' ? 'layouts.admin' : 'layouts.organizer')
 
-@section('title', 'Create Event')
+@section('title', __('app.create_event'))
 
 @section('content')
     <h1 class="text-2xl font-bold text-white">{{ __('app.create_event') }}</h1>
     <p class="mt-1 text-slate-400">{{ __('app.approval_warning') }}</p>
 
-    <form method="POST" action="{{ route('organizer.events.store') }}" enctype="multipart/form-data" class="mt-8"
+    <form method="POST" action="{{ $formAction ?? route('organizer.events.store') }}" enctype="multipart/form-data" class="mt-8"
           x-data="{
             preview: null,
             partners: [],
@@ -116,7 +116,7 @@
                         }" x-init="initMap()">
                             <label class="block text-sm font-medium text-slate-300 mb-1.5">{{ __('app.event_location') }}</label>
                             <input type="text" name="location" x-model="address"
-                                   placeholder="Click on map or type address..."
+                                   placeholder="{{ __('app.location_placeholder') }}"
                                    class="w-full rounded-xl border border-white/10 px-4 py-2.5 text-white focus:border-[#29ABE2] focus:ring-1 focus:ring-[#29ABE2] transition mb-2"
                                    style="background-color: #0f0f1a;">
                             <input type="hidden" name="lat" x-model="lat">
@@ -140,7 +140,7 @@
                                 {{ __('app.event_price') }} <span class="text-slate-500 font-normal">({{ __('app.leave_zero_free') }})</span>
                             </label>
                             <div class="relative">
-                                <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 font-semibold text-sm">TND</span>
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 font-semibold text-sm">EUR</span>
                                 <input type="number" name="price" min="0" step="0.01"
                                        value="{{ old('price', 0) }}"
                                        class="w-full rounded-xl border border-white/10 pl-14 pr-4 py-2.5 text-white focus:border-[#29ABE2] focus:ring-1 focus:ring-[#29ABE2] transition"
@@ -173,7 +173,7 @@
                                 <div x-show="!preview" class="flex flex-col items-center gap-2 text-center">
                                     <span class="text-3xl">🖼️</span>
                                     <span class="text-sm text-slate-400">{{ __('app.profile_photo') }}</span>
-                                    <span class="text-xs text-slate-500">PNG, JPG up to 5MB</span>
+                                    <span class="text-xs text-slate-500">{{ __('app.upload_hint') }}</span>
                                 </div>
                                 <img x-show="preview" x-bind:src="preview" alt=""
                                      class="mt-2 max-h-48 rounded-lg object-cover shadow" x-cloak>
@@ -273,7 +273,7 @@
         {{-- SUBMIT BAR — full width --}}
         <div class="mt-6 flex justify-between items-center rounded-2xl border border-white/10 px-6 py-4"
              style="background-color: #1a1a2e;">
-            <a href="{{ route('organizer.events.index') }}"
+            <a href="{{ $cancelUrl ?? route('organizer.events.index') }}"
                class="text-slate-400 hover:text-white transition text-sm font-semibold">
                 ← {{ __('app.cancel') }}
             </a>

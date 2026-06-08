@@ -56,9 +56,9 @@
 
     {{-- Body --}}
     <div class="flex flex-1 flex-col p-5">
-        <h3 class="text-lg font-bold text-white transition-colors group-hover:text-[#29ABE2] line-clamp-2">
+        <a href="{{ $href }}" class="text-lg font-bold text-white transition-colors group-hover:text-[#29ABE2] line-clamp-2 hover:underline">
             {{ $title }}
-        </h3>
+        </a>
         <p class="mt-2 flex items-center gap-2 text-sm text-slate-400">
             <span>📍</span> {{ $location }}
         </p>
@@ -76,6 +76,25 @@
             </div>
         </div>
 
+        {{-- Price --}}
+        <div class="mt-4">
+            @if(data_get($event, 'price', 0) > 0)
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-sm font-bold text-[#29ABE2]">
+                  {{ number_format(data_get($event, 'price', 0), 2) }} EUR
+                </span>
+                <span class="text-xs text-slate-500">≈</span>
+                <span class="text-sm font-bold text-amber-400">
+                  {{ number_format(round(data_get($event, 'price', 0) * 3.3, 2), 2) }} TND
+                </span>
+              </div>
+            @else
+              <span class="text-sm font-bold text-emerald-400">
+                🎟️ {{ __('app.event_free') }}
+              </span>
+            @endif
+        </div>
+
         {{-- Status badge --}}
         <div class="mt-4 flex flex-wrap items-center gap-2">
             <x-status-badge :status="$status" />
@@ -83,56 +102,12 @@
 
         {{-- Action buttons --}}
         <div class="mt-auto pt-5">
-            @if($event->date < now())
-                {{-- Événement passé --}}
-                <button disabled
-                        class="w-full rounded-xl py-2.5 text-sm font-semibold
-                               text-slate-500 cursor-not-allowed border border-white/5"
-                        style="background-color: rgba(255,255,255,0.03);">
-                    {{ __('app.event_past') }}
-                </button>
-
-            @elseif($event->isFull())
-                {{-- Événement complet --}}
-                <button disabled
-                        class="w-full rounded-xl py-2.5 text-sm font-semibold
-                               text-slate-500 cursor-not-allowed border border-white/5"
-                        style="background-color: rgba(255,255,255,0.03);">
-                    {{ __('app.event_full') }}
-                </button>
-
-            @elseif(auth()->check() && auth()->user()->isParticipant())
-                {{-- Participant connecté — bouton inscription --}}
-                @if(auth()->user()->registrations()->where('event_id', $event->id)->where('status','confirmed')->exists())
-                    {{-- Déjà inscrit --}}
-                    <button disabled
-                            class="w-full rounded-xl py-2.5 text-sm font-semibold
-                                   text-emerald-400 cursor-not-allowed border border-emerald-500/20"
-                            style="background-color: rgba(16,185,129,0.05);">
-                        ✓ {{ __('app.registration_confirmed') }}
-                    </button>
-                @else
-                    {{-- S'inscrire --}}
-                    <form method="POST" action="{{ route('registrations.store', $event) }}">
-                        @csrf
-                        <button type="submit"
-                                class="w-full rounded-xl py-2.5 text-sm font-semibold
-                                       text-white transition hover:scale-105"
-                                style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">
-                            {{ __('app.register_now') }}
-                        </button>
-                    </form>
-                @endif
-
-            @else
-                {{-- Non connecté ou organisateur/admin — voir détails --}}
-                <a href="{{ route('events.show', $event) }}"
-                   class="block w-full rounded-xl py-2.5 text-sm font-semibold
-                          text-center text-white transition hover:scale-105"
-                   style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">
-                    {{ __('app.view_details') }}
-                </a>
-            @endif
+            <a href="{{ route('events.show', $event) }}"
+               class="block w-full rounded-xl py-2.5 text-sm font-bold text-white text-center
+                      transition hover:scale-105"
+               style="background: linear-gradient(135deg, #29ABE2, #0A7FA8);">
+                {{ __('app.view_details') }}
+            </a>
         </div>
     </div>
 </div>

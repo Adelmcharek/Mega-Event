@@ -37,6 +37,7 @@ return [
   'login'            => 'Connexion',
   'register'         => 'Inscription',
   'email'            => 'Email',
+  'phone'            => 'Numéro de téléphone',
   'password'         => 'Mot de passe',
   'confirm_password' => 'Confirmer le mot de passe',
   'full_name'        => 'Nom complet',
@@ -70,8 +71,8 @@ return [
   'delete'           => 'Supprimer',
   'edit'             => 'Modifier',
   'view_details'     => 'Voir les détails',
-  'register_now'     => "S'inscrire",
-  'event_full'       => 'Complet',
+  'register_now'     => "S'inscrire maintenant",
+  'event_full'       => 'Événement complet',
   'event_free'       => 'Gratuit',
   'event_past'       => 'Événement passé',
   'spots_left'       => 'places restantes',
@@ -103,7 +104,9 @@ return [
   'account_info'     => 'Informations du compte',
 
   // Messages
-  'success_event_created'   => 'Événement soumis avec succès ! En attente de validation.',
+  'success_event_created'      => 'Événement soumis avec succès ! En attente de validation.',
+  'event_published_success'    => 'Événement créé et publié avec succès !',
+  'event_submitted_success'    => 'Événement soumis pour validation avec succès !',
   'success_profile_updated' => 'Profil mis à jour avec succès !',
   'success_password'        => 'Mot de passe modifié avec succès !',
   'approval_warning'        => "Votre événement nécessite l'approbation de l'admin avant publication.",
@@ -167,10 +170,12 @@ return [
   'sort_label'              => 'Trier :',
 
   // Status
+  'status_draft'            => 'Brouillon',
   'status_pending'          => 'En attente',
   'status_published'        => 'Publié',
   'status_rejected'         => 'Rejeté',
-  'status_draft'            => 'Brouillon',
+  'status_confirmed'        => 'Confirmé',
+  'status_cancelled'        => 'Annulé',
 
   // Sidebar labels
   'organizer_label'         => 'Organisateur',
@@ -248,8 +253,10 @@ return [
   // Events extra
   'event_details'           => "Détails de l'événement",
   'about_event'             => "À propos de cet événement",
-  'cancel_registration'     => "Annuler l'inscription",
-  'registration_confirmed'  => 'Inscription confirmée',
+  'cancel_registration'          => "Annuler l'inscription",
+  'confirm_cancel_registration'  => 'Êtes-vous sûr de vouloir annuler votre inscription ?',
+  'event_passed'                 => 'Événement terminé',
+  'registration_confirmed'       => 'Inscription confirmée',
   'no_partners'             => 'Aucun partenaire ajouté.',
   'partners_note'           => "Les partenaires sont spécifiques à cet événement.",
   'phone'                   => 'Téléphone',
@@ -290,8 +297,59 @@ return [
   'sort_alpha'              => 'Alphabétique',
   'sort_capacity'           => 'Capacité',
   'validation_errors'       => 'Erreurs de validation :',
+  'my_dashboard'            => 'Mon tableau de bord',
 
   // Approval banner
   'verify_email_banner'     => 'Veuillez vérifier votre adresse email pour accéder à toutes les fonctionnalités.',
   'resend_email_btn'        => "Renvoyer l'email",
+
+  // Email & phone live validation
+  'email_valid'             => 'Adresse email valide',
+  'email_invalid'           => 'Veuillez saisir une adresse email valide',
+  'phone_valid'             => 'Numéro de téléphone valide',
+  'phone_invalid'           => 'Le numéro doit contenir au moins 8 chiffres',
+
+  // Password strength
+  'pwd_weak'                => 'Faible',
+  'pwd_fair'                => 'Passable',
+  'pwd_good'                => 'Bien',
+  'pwd_strong'              => 'Fort',
+  'pwd_strength'            => 'Force : ',
+  'pwd_min_chars'           => 'Au moins 8 caractères',
+  'pwd_uppercase'           => 'Une lettre majuscule',
+  'pwd_number'              => 'Un chiffre',
+  'pwd_special'             => 'Un caractère spécial (!@#$...)',
+
+  // Recommendations
+  'rec_powered_by'          => 'Filtrage collaboratif',
+  'rec_similar_users'       => 'Basé sur des utilisateurs similaires',
+  'rec_popular'             => 'Événement populaire',
+
+  // Event show page
+  'eur_rate_note'           => '* Taux indicatif : 1 EUR = 3,3 TND',
+  'spots_hurry'             => 'Plus que :n places !',
+  'already_registered'      => 'Déjà inscrit',
+  'login_to_register'       => "Se connecter pour s'inscrire",
+  'pay_and_register'        => "Payer et s'inscrire",
+  'register_now_free'       => "S'inscrire maintenant — Gratuit",
+  'timetable_default'       => "Discours d'ouverture, conférences et réseautage — le programme complet sera annoncé avant l'événement.",
+
+  // Form helpers
+  'upload_hint'             => "PNG, JPG jusqu'à 5 Mo",
+  'visible_to_all'          => 'Visible par tous',
+  'location_placeholder'    => 'Cliquez sur la carte ou tapez une adresse...',
+
+  // Organizer participants page
+  'participants_subtitle'   => 'Vue d\'ensemble des participants confirmés sur tous vos événements.',
+  'participant_name'        => 'Nom',
+  'participant_email'       => 'Email',
+  'registered_at'           => 'Inscrit le',
+  'no_participants'         => 'Aucun participant inscrit pour le moment.',
+
+  // Payment
+  'payment_success_title'   => 'Paiement réussi !',
+  'payment_success_msg'     => 'Votre inscription a été confirmée.',
+  'payment_success_welcome' => 'Bienvenue à :event !',
+  'payment_cancel_title'    => 'Paiement annulé',
+  'payment_cancel_msg'      => 'Votre paiement a été annulé. Vous n\'avez pas été débité ni inscrit.',
 ];

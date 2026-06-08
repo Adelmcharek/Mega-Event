@@ -9,6 +9,7 @@ use App\Http\Controllers\Organizer\EventController as OrganizerEventController;
 use App\Http\Controllers\Organizer\ProfileController as OrganizerProfileController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Participant\RegistrationController;
+use App\Http\Controllers\PaymentController;
 use App\Services\RecommenderService;
 use App\Models\Event;
 use App\Models\Partner;
@@ -259,7 +260,14 @@ Route::middleware(['auth', 'role:organisateur'])->prefix('organizer')->name('org
     Route::get('events/{id}/participants', [OrganizerEventController::class, 'participants'])->name('events.participants');
 
     Route::get('/participants', function () {
-        return view('organizer.participants');
+        $user = auth()->user();
+        $events = \App\Models\Event::where('user_id', $user->id)
+            ->with(['registrations' => function ($query) {
+                $query->where('status', 'confirmed')->with('user');
+            }])
+            ->orderBy('date', 'desc')
+            ->get();
+        return view('organizer.participants', compact('events'));
     })->name('participants');
 
     Route::get('/profile', function () {
@@ -345,8 +353,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         ]);
     })->name('dashboard');
 
-    // Gestion des événements : lecture, suppression, approbation, rejet
-    Route::resource('events', AdminEventController::class)->except(['create', 'store', 'edit', 'update']);
+    // Gestion des événements : lecture, création directe (admin), suppression, approbation, rejet
+    Route::resource('events', AdminEventController::class)->except(['edit', 'update']);
     Route::post('events/{id}/approve', [AdminEventController::class, 'approve'])->name('events.approve');
     Route::post('events/{id}/reject', [AdminEventController::class, 'reject'])->name('events.reject');
 
@@ -408,6 +416,18 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
             'topEvents'  => $topEvents,
         ]);
     })->name('statistics.index');
+
+    // Participants des événements créés par l'admin
+    Route::get('/participants', function () {
+        $user = auth()->user();
+        $events = \App\Models\Event::where('user_id', $user->id)
+            ->with(['registrations' => function ($query) {
+                $query->where('status', 'confirmed')->with('user');
+            }])
+            ->orderBy('date', 'desc')
+            ->get();
+        return view('admin.participants', compact('events'));
+    })->name('participants');
 
     // Route::get('/partners', function () {
     //     return view('admin.partners');
@@ -481,5 +501,12 @@ Route::middleware('auth')->group(function () {
 // Actions d'inscription et d'annulation accessibles à tous les rôles authentifiés
 Route::middleware('auth')->group(function () {
     Route::post('events/{id}/register', [RegistrationController::class, 'store'])->name('registrations.store');
-    Route::delete('registrations/{id}', [RegistrationController::class, 'destroy'])->name('registrations.cancel');
+    Route::patch('registrations/{id}', [RegistrationController::class, 'cancel'])->name('registrations.cancel');
+
+    Route::get('/events/{event}/checkout', [PaymentController::class, 'checkout'])
+        ->name('payment.checkout');
+    Route::get('/payment/success/{event}', [PaymentController::class, 'success'])
+        ->name('payment.success');
+    Route::get('/payment/cancel/{event}', [PaymentController::class, 'cancel'])
+        ->name('payment.cancel');
 });

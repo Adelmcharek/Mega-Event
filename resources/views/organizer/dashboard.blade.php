@@ -116,7 +116,7 @@
       <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
         🤖 {{ __('app.recommendations') }}
         <span class="text-xs font-normal text-slate-400 ml-2">
-          Powered by Collaborative Filtering
+          {{ __('app.rec_powered_by') }}
         </span>
       </h2>
       @if(isset($recommendedEvents) && $recommendedEvents->isNotEmpty())
@@ -137,15 +137,15 @@
               <div class="flex items-center justify-between">
                 <span class="text-xs text-slate-500">
                   @if(isset($event->recommendation_reason) && $event->recommendation_reason === 'collaborative_filtering')
-                    🤖 Based on similar users
+                    🤖 {{ __('app.rec_similar_users') }}
                   @else
-                    🔥 Popular event
+                    🔥 {{ __('app.rec_popular') }}
                   @endif
                 </span>
                 @if($event->price > 0)
                   <span class="text-xs font-bold text-[#29ABE2]">{{ $event->price }} TND</span>
                 @else
-                  <span class="text-xs font-bold text-emerald-400">Free</span>
+                  <span class="text-xs font-bold text-emerald-400">{{ __('app.event_free') }}</span>
                 @endif
               </div>
             </a>
